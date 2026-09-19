@@ -1,6 +1,6 @@
 # Interview Practice Repository
 
-A collection of hands-on coding interview projects organized by language and interview format. Each project is a self-contained codebase with intentional issues, gaps, and areas for improvement — giving interviewers realistic scenarios to test candidates.
+A collection of hands-on coding interview projects organized by language. Each project is a self-contained codebase with intentional issues, gaps, and areas for improvement — giving interviewers realistic scenarios to test candidates.
 
 ## How It Works
 
@@ -10,35 +10,46 @@ A collection of hands-on coding interview projects organized by language and int
 
 ## Projects
 
-| Language | Format | Project | Stack | Status |
-|----------|--------|---------|-------|--------|
-| Java | Pair Programming | [Bookstore API](java/pair-programming/bookstore-api/) | Spring Boot 4, Java 25, H2, JPA | Done |
-| Java | Pair Programming | [Todo API](java/pair-programming/todo-api/) | Spring Boot 4, Java 25, H2, JPA | Done |
-| Java | Pair Programming | [Delivery Food System](java/pair-programming/delivery-food-system/) | Spring Boot 3.4, Java 21, MongoDB, Kafka | Done |
-| Java | Pair Programming | [Flight Feasibility API](java/pair-programming/flight-feasibility/) | Spring Boot 4, Java 25, Maven | Done |
+| Language | Project | Stack | Status |
+|----------|---------|-------|--------|
+| Java | [Bookstore API](java/bookstore-api/) | Spring Boot 4, Java 25, H2, JPA | Done |
+| Java | [Todo API](java/todo-api/) | Spring Boot 4, Java 25, H2, JPA | Done |
+| Java | [Delivery Food System](java/delivery-food-system/) | Spring Boot 3.4, Java 21, MongoDB, Kafka | Done |
+| Java | [Flight Feasibility API](java/flight-feasibility/) | Spring Boot 4, Java 25, Maven | Done |
+| Java | [Ledger](java/ledger/) | Plain Java 21, JUnit 5, Mockito, no Spring | Done |
+| Java | [Load Balancer](java/load-balancer/) | Plain Java 21, JUnit 5 | Done |
+| Java | [URL Shortener](java/url-shortener/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Rate Limiter](java/rate-limiter/) | Plain Java 21, JUnit 5 | Done |
+| Java | [SQL Transfer](java/sql-transfer/) | Plain Java 21, JDBC, H2 in-memory | Done |
+| Java | [Ledger over HTTP](java/ledger-http/) | Plain Java 21, Javalin, Mockito | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
 > deliberately ambiguous assessment brief, with only the HTTP contract provided.
+>
+> **Ledger, Load Balancer, URL Shortener, Rate Limiter, SQL Transfer and Ledger over HTTP** are a
+> third format: timed live-coding exercises in the style of fintech backend interviews (own IDE, no
+> Spring, no AI, user stories revealed one at a time, then concurrency and database questions). Each
+> is a standalone plain-Java project with a compiling skeleton on `main` and a complete, tested
+> solution on `solutions/<project>`, for example `solutions/ledger`.
 
 ## Structure
 
 ```
-interviews/
+interview-prep/
 ├── java/
-│   ├── pair-programming/
-│   │   ├── bookstore-api/
-│   │   ├── todo-api/
-│   │   ├── delivery-food-system/
-│   │   └── flight-feasibility/
-│   ├── take-home/
-│   └── system-design/
+│   ├── bookstore-api/
+│   ├── todo-api/
+│   ├── delivery-food-system/
+│   ├── flight-feasibility/
+│   ├── ledger/
+│   ├── load-balancer/
+│   ├── url-shortener/
+│   ├── rate-limiter/
+│   ├── sql-transfer/
+│   └── ledger-http/
 ├── python/
-│   ├── pair-programming/
-│   └── take-home/
 └── typescript/
-    ├── pair-programming/
-    └── take-home/
 ```
 
 ## Each Project Contains
@@ -52,7 +63,7 @@ interviews/
 Each project is self-contained. Navigate to its directory and follow the README:
 
 ```bash
-cd java/pair-programming/bookstore-api
+cd java/bookstore-api
 ./mvnw spring-boot:run
 ```
 
