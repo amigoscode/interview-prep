@@ -16,10 +16,22 @@ A collection of hands-on coding interview projects organized by language and int
 | Java | Pair Programming | [Todo API](java/pair-programming/todo-api/) | Spring Boot 4, Java 25, H2, JPA | Done |
 | Java | Pair Programming | [Delivery Food System](java/pair-programming/delivery-food-system/) | Spring Boot 3.4, Java 21, MongoDB, Kafka | Done |
 | Java | Pair Programming | [Flight Feasibility API](java/pair-programming/flight-feasibility/) | Spring Boot 4, Java 25, Maven | Done |
+| Java | Live Coding | [Revolut: Ledger](java/live-coding/revolut/01-ledger/) | Plain Java 21, JUnit 5, Mockito, no Spring | Done |
+| Java | Live Coding | [Revolut: Load Balancer](java/live-coding/revolut/02-load-balancer/) | Plain Java 21, JUnit 5 | Done |
+| Java | Live Coding | [Revolut: URL Shortener](java/live-coding/revolut/03-url-shortener/) | Plain Java 21, JUnit 5 | Done |
+| Java | Live Coding | [Revolut: Rate Limiter](java/live-coding/revolut/04-rate-limiter/) | Plain Java 21, JUnit 5 | Done |
+| Java | Live Coding | [Revolut: SQL Transfer](java/live-coding/revolut/05-sql-transfer/) | Plain Java 21, JDBC, H2 in-memory | Done |
+| Java | Live Coding | [Revolut: Ledger over HTTP](java/live-coding/revolut/06-ledger-http/) | Plain Java 21, Javalin, Mockito | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
 > deliberately ambiguous assessment brief, with only the HTTP contract provided.
+>
+> The **Revolut live-coding** set is a third format: six timed exercises rehearsing Revolut's Java
+> "Technical Conversation Interview" (own IDE, no Spring, no AI, user stories revealed one at a time,
+> then concurrency and database questions). Skeletons live on `main`; each exercise has a complete,
+> tested solution on `solutions/revolut/<exercise>`. See [java/live-coding/revolut](java/live-coding/revolut/)
+> and the companion PDF in its `docs/` folder.
 
 ## Structure
 
@@ -31,6 +43,8 @@ interviews/
 │   │   ├── todo-api/
 │   │   ├── delivery-food-system/
 │   │   └── flight-feasibility/
+│   ├── live-coding/
+│   │   └── revolut/              # 01-ledger ... 06-ledger-http, one Maven build
 │   ├── take-home/
 │   └── system-design/
 ├── python/
