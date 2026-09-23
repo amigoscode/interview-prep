@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: secret-storage
+
+server:
+  port: 8080
+
+app:
+  # TODO: This is fine for now, we'll move it later...
+  admin-password: SuperSecretPassword123!

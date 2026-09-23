@@ -22,6 +22,7 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Rate Limiter](java/rate-limiter/) | Plain Java 21, JUnit 5 | Done |
 | Java | [SQL Transfer](java/sql-transfer/) | Plain Java 21, JDBC, H2 in-memory | Done |
 | Java | [Ledger over HTTP](java/ledger-http/) | Plain Java 21, Javalin, Mockito | Done |
+| Java | [Secret Storage](java/secret-storage/) | Spring Boot 4, Java 25, Docker | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
@@ -32,6 +33,10 @@ A collection of hands-on coding interview projects organized by language. Each p
 > Spring, no AI, user stories revealed one at a time, then concurrency and database questions). Each
 > is a standalone plain-Java project with a compiling skeleton on `main` and a complete, tested
 > solution on `solutions/<project>`, for example `solutions/ledger`.
+>
+> **Secret Storage** is a take-home security case followed by a 15-minute presentation and Q&A. The
+> code change is small; the assessment is the reasoning about local development, CI/CD and
+> production. A reference fix and write-up are on `solutions/secret-storage`.
 
 ## Structure
 
@@ -47,7 +52,8 @@ interview-prep/
 │   ├── url-shortener/
 │   ├── rate-limiter/
 │   ├── sql-transfer/
-│   └── ledger-http/
+│   ├── ledger-http/
+│   └── secret-storage/
 ├── python/
 └── typescript/
 ```
