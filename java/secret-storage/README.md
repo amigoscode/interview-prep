@@ -19,17 +19,39 @@ and explain how the same secret should reach the app on a laptop, in CI and in p
 
 ## Getting Started
 
+> This is the **reference solution** branch. The reasoning, the presentation outline and what was
+> deliberately left out are in [`SOLUTION.md`](SOLUTION.md).
+
 ### Prerequisites
 
 - Java 25+
 - Maven 3.9+ (the wrapper is included)
-- Docker (optional — needed only for the container workflow in the brief)
+- Docker (optional)
+- `htpasswd` to create a password hash (ships with macOS; `apache2-utils` on Debian/Ubuntu)
+
+### Configure the Admin Password
+
+The app never sees the password, only a bcrypt hash of it, supplied by the environment. Nothing
+secret is committed and nothing secret is built into the jar or the image.
+
+```bash
+cp .env.example .env
+htpasswd -bnBC 12 "" 'choose-a-password' | tr -d ':\n'   # paste the output into .env
+```
+
+Paste the hash into `.env` **unquoted**: `docker run --env-file` keeps quotes as part of the value.
+Without `ADMIN_PASSWORD_HASH` the app refuses to start and says so.
 
 ### Run the Application
 
 ```bash
+export ADMIN_PASSWORD_HASH='<paste the hash>'
 ./mvnw spring-boot:run
 ```
+
+Use **single quotes**, and do not `source .env`: a bcrypt hash is full of `$`, and the shell expands
+them. `$2y$12$abc...` quietly becomes `y2bashabc...`. If that happens the app refuses to start with
+`must be a bcrypt hash` rather than rejecting every login.
 
 The app starts on **http://localhost:8080** and asks for credentials.
 
@@ -39,21 +61,22 @@ The app starts on **http://localhost:8080** and asks for credentials.
 ./mvnw clean test
 ```
 
+The tests supply their own throwaway hash, so they need no `.env`.
+
 ### Run with Docker
 
 ```bash
 docker build -t secret-storage .
-docker run -p 8080:8080 secret-storage
+docker run --env-file .env -p 8080:8080 secret-storage
 ```
+
+With `docker compose`, write every `$` in the hash as `$$`, because compose interpolates it.
 
 ### Try the Endpoint
 
 ```bash
-curl -u admin:<password> http://localhost:8080
+curl -u admin:choose-a-password http://localhost:8080
 ```
-
-- **Username:** `admin`
-- **Password:** *(check the source code)*
 
 ---
 
@@ -100,15 +123,26 @@ curl -u admin:<password> http://localhost:8080
 
 ```
 secret-storage/
-├── Dockerfile                          ← multi-stage build, as the team ships it today
+├── .env.example                        ← what to put in your gitignored .env
+├── .dockerignore
+├── Dockerfile                          ← non-root, tests run in the build, no secret baked in
+├── SOLUTION.md                         ← the reasoning
 ├── pom.xml
-└── src/main/
-    ├── java/com/amigoscode/interview/
-    │   ├── SecretStorageApplication.java
-    │   └── hello/
-    │       └── HelloController.java    ← GET /, checks the Basic auth header itself
-    └── resources/
-        └── application.yml             ← app configuration
+└── src/
+    ├── main/
+    │   ├── java/com/amigoscode/interview/
+    │   │   ├── SecretStorageApplication.java
+    │   │   ├── hello/
+    │   │   │   └── HelloController.java    ← GET /, no authentication code left in it
+    │   │   └── security/
+    │   │       ├── AdminProperties.java    ← validated at startup: set, and a bcrypt hash
+    │   │       └── SecurityConfig.java     ← HTTP Basic, deny by default, stateless
+    │   └── resources/
+    │       └── application.yml             ← no secret, only ${ADMIN_PASSWORD_HASH}
+    └── test/java/com/amigoscode/interview/
+        └── security/
+            ├── AuthenticationTest.java     ← real HTTP: 401 / 200 / malformed headers
+            └── StartupValidationTest.java  ← missing or plaintext value stops startup
 ```
 
 Everything works: the right credentials return `200`, anything else returns `401`. You are free to

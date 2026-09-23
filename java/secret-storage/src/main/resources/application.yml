@@ -6,5 +6,9 @@ server:
   port: 8080
 
 app:
-  # TODO: This is fine for now, we'll move it later...
-  admin-password: SuperSecretPassword123!
+  admin:
+    # Not a secret: configuration, and safe to commit.
+    username: admin
+    # A bcrypt hash of the password, never the password itself. Supplied by the environment
+    # the app runs in and never committed. Empty here so startup fails with a clear message.
+    password-hash: ${ADMIN_PASSWORD_HASH:}
