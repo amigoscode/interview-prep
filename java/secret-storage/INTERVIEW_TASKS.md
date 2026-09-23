@@ -186,8 +186,9 @@ ever exposed.
 - `htpasswd -bnBC 12 "" 'your-password' | tr -d ':\n'` produces a `$2y$` hash, which Spring's
   `BCryptPasswordEncoder` accepts
 - A bcrypt hash is full of `$`. `docker run --env-file` takes values literally (and keeps any quotes
-  as part of the value), while `docker compose` interpolates `$` and needs `$$`. This breaks demos in
-  real submissions
+  as part of the value), `docker compose` interpolates `$` and needs `$$`, and `source .env` in a
+  shell expands it: `$2y$12$abc...` quietly becomes `y2bashabc...`. This breaks demos in real
+  submissions. Ask how they would make that failure loud rather than a silent wrong password
 - Listen for the words. Bcrypt is **hashing**, not encryption: there is no key and no way back. A
   real submission's PR description said "bcrypt implementation for encrypting"
 - Ask the honest question: for a single shared admin password, how much does this buy? (Some: a
