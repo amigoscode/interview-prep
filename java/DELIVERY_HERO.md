@@ -17,6 +17,21 @@ includes some coding. Source: Delivery Hero's own post,
 Practise without IDE autocomplete. One reported candidate was down-levelled for not recalling basic `String`
 methods without it.
 
+## Process notes
+
+- **The bar raiser includes live coding.** Berlin, Sep 2025: an Engineering Manager from another team ran 30 minutes
+  of problem solving and 30 minutes of scenario-based technical questions. Berlin, Oct 2025: a principal engineer
+  asked only for live code while staying muted. Reported (Glassdoor).
+- **The same medium string problem was asked in both the technical round and the bar raiser** (Berlin, Sep 2025).
+  That technical round was 30 minutes of LeetCode medium plus 30 minutes on experience and the CV. Reported (Glassdoor).
+- **The loop can be 5 rounds:** HR, hiring manager, technical, system design, bar raiser. Reported (Glassdoor).
+- **Timelines:** the decision takes about 1 to 2 weeks after the final round. Several 2026 candidates were left on
+  "still gathering feedback", then rejected weeks later or ghosted. Reported (Reddit, 2026).
+- **Negotiate the level, not just the salary.** A Berlin Senior Software Engineer 2 offer in 2021 was EUR 93K base
+  plus EUR 20K/year RSUs with a 2-year cliff. In 2025 a Berlin backend developer with 7 years' experience was offered
+  "Middle" level at Delivery Hero Ads at about the same pay. Reported (Reddit).
+- Reddit comments calling the bar raiser "mostly behavioural" come from people who did not take it. Treat as opinion.
+
 ---
 
 ## Coding questions
@@ -30,6 +45,9 @@ methods without it.
 | Maximum Subarray in O(1) space | Reported (2021) | [array-drills](array-drills/) Task 2 |
 | All index pairs summing to K, with duplicates | Reported (2021) | [array-drills](array-drills/) Task 3 |
 | A binary-search-based problem | Reported (2026) | [array-drills](array-drills/) Task 4 |
+| Valid Word Abbreviation (LeetCode 408): `substitution` matches `s10n`, `su3i1u2on`, `12`; no leading zeros | Reported (2026, bar raiser) | [string-drills](string-drills/) Task 4 |
+| Palindrome check, then a simple problem using Java lambdas and collections | Reported (Blind, undated) | [string-drills](string-drills/) Task 5 |
+| Live coding with `HashMap` / `HashSet`; Destination City (LeetCode 1436) with streams and `Collectors` | Reported (2025; AmbitionBox, before 2023) | [array-drills](array-drills/) Task 5 |
 | Simple stream-processing problem, data continuously coming in | Reported (2026) | [order-tracking](order-tracking/) Task 3 |
 | Implement 2 REST APIs live | Reported (2023) | [order-api](order-api/) Task 1 |
 | Implement a CRUD API | Reported (2023) | [order-api](order-api/) Task 2 |
@@ -40,6 +58,9 @@ methods without it.
 | LRU Cache (LeetCode 146) | Sister brand (Glovo, 2025) | [data-structure-drills](data-structure-drills/) Task 3 |
 | Multiply X and Y without `*`, TDD | Sister brand (talabat, 2023) | [data-structure-drills](data-structure-drills/) Task 1 |
 | Ordered Set: push, pop, remove, intersect, values, orderedValues | Sister brand (foodpanda, 2022) | [data-structure-drills](data-structure-drills/) Task 2 |
+| Roman to Integer; BFS on a grid | Sister brand (Glovo, 2025) | Extra practice |
+| Recruiter quiz: name 5 data structures, HTTP status codes, Big-O of searching a sorted list | Sister brand (Glovo, 2025) | Discussion only |
+| Merge k sorted lists in O(1) space; regex with backtracking; PUT vs POST; hash collisions | Sister brand (foodpanda) | Extra practice |
 | Rate limiter: `allowRequest(customerId)` | Predicted | [rate-limiter](rate-limiter/) |
 | Top-K restaurants by order count from a stream | Predicted | [order-tracking](order-tracking/) Task 4 |
 | Merge overlapping intervals (rider shifts) | Predicted | [rider-dispatch](rider-dispatch/) Task 2 |
@@ -61,14 +82,17 @@ These are asked out loud. Each is covered in the "Questions to Ask Afterwards" o
 | Microservices: disadvantages, distributed transactions, caching | Reported (2021, 2023) | [order-api](order-api/), [order-tracking](order-tracking/) |
 | MS1 updates DB1, calls MS2 and it's down: how do you restore consistency? | Reported (2021) | [order-api](order-api/) (saga, outbox) |
 | Memory leaks and threads; CI/CD; taking a project from design to production | Reported (2021, 2023) | [rider-dispatch](rider-dispatch/), [fix-the-service](fix-the-service/) |
-| What is CORS? How do you secure and authenticate a REST API? JWT | Reported (2021), Glovo (2025) | [order-api](order-api/) |
+| What is CORS? How do you secure and authenticate a REST API? How JWT security works | Reported (2021; JWT: Medium, EM round), Glovo (2025) | [order-api](order-api/) |
 | Kubernetes basics | Reported (2026) | Discussion only |
+| Locking mechanisms in relational databases | Reported (Glassdoor, second report) | [sql-transfer](sql-transfer/) |
+| Sync vs async programming | Reported (Glassdoor, Nov 2025) | [order-api](order-api/) (discussion) |
+| Monolith vs microservices; synchronous vs asynchronous processes | Reported (Glassdoor, Oct 2025) | [order-api](order-api/) (discussion) |
 | Anything on your CV, in depth | Reported (2022) | Discussion only |
 | Postgres isolation levels, indexing, finding a slow query | Predicted (job ads) | [sql-transfer](sql-transfer/) |
 | Idempotency keys: avoiding a double charge on retry | Predicted | [order-api](order-api/) Task 4 |
 | Outbox pattern: publishing an event exactly when the DB commits | Predicted | [order-tracking](order-tracking/) |
-| At-least-once delivery, duplicate and out-of-order messages, dead-letter queues | Predicted | [order-tracking](order-tracking/) Task 2 |
-| Timeouts, retries with backoff and jitter, circuit breakers, fallbacks | Predicted | [order-api](order-api/) |
+| At-least-once delivery, duplicate and out-of-order messages, dead-letter queues | Reported (Medium, EM round, notification system) | [order-tracking](order-tracking/) Task 2 |
+| Service failure: timeouts, retries with backoff and jitter, circuit breakers, fallbacks, caching | Reported (Blind, 2021, hiring manager round) | [order-api](order-api/) |
 | Spring `@Transactional` (proxies, self-invocation, propagation), JPA N+1 | Predicted | [order-api](order-api/) |
 | Java concurrency: thread pools, `CompletableFuture`, virtual threads, races | Predicted | [rider-dispatch](rider-dispatch/) Task 4, [order-tracking](order-tracking/) Task 5 |
 | Caching with Redis: invalidation, TTLs, stampede | Predicted | [data-structure-drills](data-structure-drills/) (LRU follow-ups) |
@@ -88,9 +112,11 @@ can justify it. A 2026 candidate was rejected for over-engineering with Kafka, P
 | Give away N million free burgers in a campaign | Reported (2021) | [order-api](order-api/) (idempotency, rate limits) |
 | Order-tracking API (load balancing, caching, consistency) | Reported (2023, lower reliability) | [order-tracking](order-tracking/) |
 | Defend your design choices, including why *not* Kafka | Reported (2026) | Any |
+| "Improve our existing system", with follow-up questions | Reported (Glassdoor) | Discussion only |
 | Payment platform, recommendation system, stream processor | Named by Delivery Hero | [order-api](order-api/), [order-tracking](order-tracking/) |
 | Design Glovo end to end, rider status pushed every 2 seconds | Sister brand (Glovo) | [rider-dispatch](rider-dispatch/) |
 | Real-time chat between rider and customer | Sister brand (foodpanda) | Discussion only |
+| URL shortener | Sister brand (foodpanda) | [url-shortener](url-shortener/) |
 | Saved-search daily email for 20M users | Sister brand (talabat) | Discussion only |
 | Order placement: cart, voucher, payment, restaurant (saga vs orchestration) | Predicted | [order-api](order-api/) |
 | Order status tracking and "where is my order" | Predicted | [order-tracking](order-tracking/) |
@@ -114,3 +140,11 @@ can justify it. A 2026 candidate was rejected for over-engineering with Kafka, P
 - Candidate reports on LeetCode Discuss: posts 8281420 (2026), 4168834 (2023), 2034030 (2022), 1526122 (2021),
   1618007 (2021), 1413476 (2021), 1201101 (2021); [Delivery Hero Berlin interview experience](https://medium.com/@shilpikumari14049/delivery-hero-berlin-interview-experience-56c3b255119f) (Medium, 2023)
 - Sister brands: LeetCode Discuss 6976664, 7378630 and 3889450 (Glovo); talabat and foodpanda write-ups by freezefrancis on Medium
+- Reddit (read via Agent Reach / OpenCLI): r/FAANGrecruiting 1t3g8h2 (May 2026), r/cscareerquestionsEU 1tb3by3
+  (May 2026), 1s36sv4 (2026), 1oks8qx (Oct 2025), p4rpit (Aug 2021), r/leetcode 1st62id (Apr 2026); Glovo:
+  1k1gusx and 1ivg1my (2025)
+- Glassdoor, read via Exa's search index because the site blocks automated access:
+  [Software Engineer interview questions](https://www.glassdoor.com/Interview/Delivery-Hero-Software-Engineer-Interview-Questions-EI_IE504556.0,13_KO14,31.htm),
+  [Delivery Hero interview questions](https://www.glassdoor.com/Interview/Delivery-Hero-Interview-Questions-E504556.htm)
+- Other candidate reports: Blind posts btm1s6tn and z7piw5fm (2021); Medium write-up by creatrixity; LinkedIn post by
+  sugumarsampath (Jan 2026); AmbitionBox

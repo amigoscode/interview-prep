@@ -1,10 +1,13 @@
 # Array Drills — Live Coding Practice
 
-Four short array problems of the kind Delivery Hero puts in its one-hour CoderPad round: largest,
-second largest and kth largest; maximum subarray (Kadane); index pairs that sum to K; and a binary
-search over sorted order timestamps. None is hard on its own. What the round tests is whether you
-pin down the spec before typing (duplicates? empty input? what if there is no answer?), state the
-complexity out loud, and then prove it with tests. Time box: **35 minutes**.
+Five short array and collections problems of the kind Delivery Hero puts in its one-hour CoderPad
+round: largest, second largest and kth largest; maximum subarray (Kadane); index pairs that sum to
+K; a binary search over sorted order timestamps; and the rider's final destination with a
+`HashSet`, rewritten with streams and `Collectors`. None is hard on its own. What the round tests
+is whether you pin down the spec before typing (duplicates? empty input? what if there is no
+answer?), state the complexity out loud, and then prove it with tests. Time box: **50 minutes**
+for all five. The real round gives you one problem, so for a one-hour mock the interviewer picks
+two or three tasks and leaves time for the questions at the end.
 
 
 ## Tech Stack
