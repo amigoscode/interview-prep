@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 /**
- * Three string drills reported from Delivery Hero's live-coding round.
+ * Five string drills reported from Delivery Hero's live-coding and bar raiser rounds.
  *
  * <p>Every method walks its input once with indexes and allocates little: that is what the
  * interviewer is looking for, more than any clever library call.
@@ -105,6 +106,81 @@ public final class StringDrills {
                 b.index++;
             }
         }
+    }
+
+    /**
+     * Story 4 (LeetCode 408). A run of digits in {@code abbr} skips that many characters of
+     * {@code word}; any other character must match {@code word} exactly. A count may not start
+     * with {@code 0}, which also rules out skipping zero characters.
+     *
+     * <p>Two pointers, never expanding the abbreviation. A count larger than what is left of the
+     * word fails at once, so {@code "99999999999"} cannot overflow. O(n + m) time, O(1) space.
+     */
+    public static boolean isValidAbbreviation(String word, String abbr) {
+        Objects.requireNonNull(word, "word");
+        Objects.requireNonNull(abbr, "abbr");
+        int w = 0;
+        int a = 0;
+        while (a < abbr.length()) {
+            char c = abbr.charAt(a);
+            if (Character.isDigit(c)) {
+                if (c == '0') return false; // leading zero, or a zero-length skip
+                int skip = 0;
+                while (a < abbr.length() && Character.isDigit(abbr.charAt(a))) {
+                    skip = skip * 10 + (abbr.charAt(a) - '0');
+                    if (skip > word.length() - w) return false; // overruns the word
+                    a++;
+                }
+                w += skip;
+            } else {
+                if (w == word.length() || word.charAt(w) != c) return false;
+                w++;
+                a++;
+            }
+        }
+        return w == word.length();
+    }
+
+    /**
+     * Story 5. Ignores case and every character that is not a letter or digit, so
+     * {@code "A man, a plan, a canal: Panama"} is a palindrome. Text with no letters or digits
+     * is a palindrome too (it reads as the empty string).
+     *
+     * <p>Two pointers moving inwards, skipping what does not count: O(n) time, O(1) space.
+     */
+    public static boolean isPalindrome(String text) {
+        Objects.requireNonNull(text, "text");
+        int left = 0;
+        int right = text.length() - 1;
+        while (left < right) {
+            if (!Character.isLetterOrDigit(text.charAt(left))) {
+                left++;
+            } else if (!Character.isLetterOrDigit(text.charAt(right))) {
+                right--;
+            } else if (Character.toLowerCase(text.charAt(left)) != Character.toLowerCase(text.charAt(right))) {
+                return false;
+            } else {
+                left++;
+                right--;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Story 5 follow-up: the same rule with streams and lambdas. It reads as the definition
+     * (keep letters and digits, lower-case them, compare each end with its mirror), but it
+     * copies the cleaned characters into an array first: O(n) extra space and a second pass,
+     * where {@link #isPalindrome(String)} needs neither.
+     */
+    public static boolean isPalindromeWithStreams(String text) {
+        Objects.requireNonNull(text, "text");
+        int[] cleaned = text.chars()
+                .filter(Character::isLetterOrDigit)
+                .map(Character::toLowerCase)
+                .toArray();
+        int n = cleaned.length;
+        return IntStream.range(0, n / 2).allMatch(i -> cleaned[i] == cleaned[n - 1 - i]);
     }
 
     /** One side of story 3: where we are, and how many unknowns are still owed. */
