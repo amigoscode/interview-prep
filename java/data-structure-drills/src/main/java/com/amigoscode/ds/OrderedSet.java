@@ -1,62 +1,92 @@
 package com.amigoscode.ds;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Set;
 
 /**
- * Task 2 starts here. A set that remembers insertion order. Decide (and document) what a
- * duplicate push does: no-op, or move the value to the end.
+ * Task 2: a set that remembers insertion order.
+ *
+ * <p>Pushing a value that is already present is a no-op: the value keeps its original position.
+ * {@link #pop()} therefore returns the value whose <em>first</em> push is the most recent among
+ * the values still present.
+ *
+ * <p>Backed by a {@link LinkedHashSet} (a hash table threaded with a doubly linked list), so
+ * push, pop, remove and contains are all O(1). Since Java 21 it is a {@code SequencedSet}, which
+ * gives {@code removeLast()} directly. Nulls are rejected.
  */
 public final class OrderedSet<T> {
 
+    private final LinkedHashSet<T> elements = new LinkedHashSet<>();
+
     public OrderedSet() {
-        throw new UnsupportedOperationException("story 2");
     }
 
     @SafeVarargs
     public static <T> OrderedSet<T> of(T... values) {
-        throw new UnsupportedOperationException("story 2");
+        OrderedSet<T> set = new OrderedSet<>();
+        for (T value : values) {
+            set.push(value);
+        }
+        return set;
     }
 
-    /** Adds the value at the end. Returns {@code false} if it was already present. */
+    /** Adds the value at the end. Returns {@code false} (and changes nothing) if already present. */
     public boolean push(T value) {
-        throw new UnsupportedOperationException("story 2");
+        return elements.add(Objects.requireNonNull(value, "value"));
     }
 
     /** Removes and returns the most recently inserted value still present. */
     public T pop() {
-        throw new UnsupportedOperationException("story 2");
+        if (elements.isEmpty()) {
+            throw new NoSuchElementException("pop on an empty set");
+        }
+        return elements.removeLast();
     }
 
     /** Returns {@code true} if the value was present. */
     public boolean remove(T value) {
-        throw new UnsupportedOperationException("story 2");
+        return elements.remove(value);
     }
 
     public boolean contains(T value) {
-        throw new UnsupportedOperationException("story 2");
+        return elements.contains(value);
     }
 
     public int size() {
-        throw new UnsupportedOperationException("story 2");
+        return elements.size();
     }
 
     public boolean isEmpty() {
-        throw new UnsupportedOperationException("story 2");
+        return elements.isEmpty();
     }
 
-    /** A new set with the values present in both. Neither input changes. */
+    /** A new set with the values present in both, in this set's insertion order. Neither input changes. */
     public OrderedSet<T> intersect(OrderedSet<T> other) {
-        throw new UnsupportedOperationException("story 2");
+        Objects.requireNonNull(other, "other");
+        OrderedSet<T> result = new OrderedSet<>();
+        for (T value : elements) {
+            if (other.contains(value)) {
+                result.elements.add(value);
+            }
+        }
+        return result;
     }
 
-    /** Every value, any order. */
+    /** An unmodifiable snapshot, no order promised. */
     public Set<T> values() {
-        throw new UnsupportedOperationException("story 2");
+        return Set.copyOf(elements);
     }
 
-    /** Every value, in insertion order. */
+    /** An unmodifiable snapshot in insertion order. */
     public List<T> orderedValues() {
-        throw new UnsupportedOperationException("story 2");
+        return List.copyOf(elements);
+    }
+
+    @Override
+    public String toString() {
+        return elements.toString();
     }
 }

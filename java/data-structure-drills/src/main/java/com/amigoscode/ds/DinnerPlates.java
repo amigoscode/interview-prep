@@ -1,34 +1,82 @@
 package com.amigoscode.ds;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 import java.util.OptionalInt;
+import java.util.TreeSet;
 
 /**
- * Task 4 starts here. Dinner Plate Stacks (LeetCode 1172). LeetCode returns -1 for "nothing to
- * pop"; here that is an empty {@link OptionalInt}, because -1 is a valid plate.
+ * Task 4: Dinner Plate Stacks (LeetCode 1172).
+ *
+ * <p>An unbounded row of stacks, each holding at most {@code capacity} plates. {@code push} goes
+ * to the leftmost stack that is not full, {@code pop} takes from the rightmost stack that is not
+ * empty, {@code popAtStack(i)} takes from stack {@code i}.
+ *
+ * <p>Two invariants keep every operation at O(log n):
+ * <ul>
+ *   <li>{@code notFull} holds the index of every existing stack with room, so the leftmost is
+ *       {@code notFull.first()}.</li>
+ *   <li>The last stack in {@code stacks} is never empty (empty stacks at the right are trimmed),
+ *       so {@code pop} always takes from the last stack.</li>
+ * </ul>
+ *
+ * <p>LeetCode returns {@code -1} for "nothing to pop"; this version returns an empty
+ * {@link OptionalInt}, because {@code -1} is a perfectly good plate.
  */
 public final class DinnerPlates {
 
+    private final int capacity;
+    private final List<Deque<Integer>> stacks = new ArrayList<>();
+    private final TreeSet<Integer> notFull = new TreeSet<>();
+
     public DinnerPlates(int capacity) {
-        throw new UnsupportedOperationException("story 4");
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("capacity must be positive, was " + capacity);
+        }
+        this.capacity = capacity;
     }
 
-    /** Pushes onto the leftmost stack that is not full. */
     public void push(int value) {
-        throw new UnsupportedOperationException("story 4");
+        int index;
+        if (notFull.isEmpty()) {
+            index = stacks.size();
+            stacks.add(new ArrayDeque<>(capacity));
+            notFull.add(index);
+        } else {
+            index = notFull.first();
+        }
+        Deque<Integer> stack = stacks.get(index);
+        stack.push(value);
+        if (stack.size() == capacity) {
+            notFull.remove(index);
+        }
     }
 
-    /** Pops from the rightmost stack that is not empty. */
     public OptionalInt pop() {
-        throw new UnsupportedOperationException("story 4");
+        return stacks.isEmpty() ? OptionalInt.empty() : popAtStack(stacks.size() - 1);
     }
 
-    /** Pops from stack {@code index}; empty if that stack does not exist or is empty. */
     public OptionalInt popAtStack(int index) {
-        throw new UnsupportedOperationException("story 4");
+        if (index < 0 || index >= stacks.size() || stacks.get(index).isEmpty()) {
+            return OptionalInt.empty();
+        }
+        int value = stacks.get(index).pop();
+        notFull.add(index);
+        trimEmptyStacksOnTheRight();
+        return OptionalInt.of(value);
     }
 
-    /** Number of stacks currently held, with empty stacks on the right trimmed. For tests. */
+    /** Number of stacks currently held (after trimming). Exposed for tests. */
     int stackCount() {
-        throw new UnsupportedOperationException("story 4");
+        return stacks.size();
+    }
+
+    private void trimEmptyStacksOnTheRight() {
+        while (!stacks.isEmpty() && stacks.getLast().isEmpty()) {
+            notFull.remove(stacks.size() - 1);
+            stacks.removeLast();
+        }
     }
 }
