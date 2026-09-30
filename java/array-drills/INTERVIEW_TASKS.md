@@ -1,6 +1,7 @@
 # Interview Tasks — Array Drills
 
-Sequential user stories, one at a time. Budget **35 minutes**.
+Sequential user stories, one at a time. Budget **50 minutes** for all five (Tasks 1-4 alone
+take 35). For a one-hour mock the interviewer picks two or three tasks; Task 5 stands on its own.
 
 For every task: say the approach and its time and space complexity before you type, and ask about
 the edge cases (empty input, duplicates, negatives, no answer) before you decide them yourself.
@@ -114,6 +115,49 @@ and how many orders fall in the window `[from, to)`.*
 
 ---
 
+## Task 5: Final Destination, Then the Streams Rewrite (15 min) (reported at Delivery Hero, 2025: live coding on "hashing map and hashing set"; before 2023: a HackerRank problem "like Destination City")
+
+**Story:** *A rider's route arrives as a list of legs `[from, to]`, in any order. Together they
+form one path with no loops. Return the final destination: the city the rider ends up in, which is
+the only city with no outgoing leg (LeetCode 1436).*
+
+`[["London", "New York"], ["New York", "Lima"], ["Lima", "Sao Paulo"]]` gives `"Sao Paulo"`.
+
+**Acceptance Criteria:**
+- `finalDestination` runs in O(n) time with a `HashSet` of origins, not O(n²) with a nested loop
+- Legs may arrive in any order; a single leg returns its `to`
+- City names match exactly (case-sensitive)
+- LeetCode promises valid input, a service cannot. Decide and test what happens when there is no
+  answer or more than one. **The spec for this exercise:** null list, leg or city throws
+  `NullPointerException`; an empty list throws `IllegalArgumentException`; so does anything with
+  not exactly one city lacking an outgoing leg: zero means a loop (`A->B, B->A`), two or more means
+  a fork (`A->B, A->C`) or disjoint paths (`A->B, C->D`)
+- Say what the O(n) check does **not** catch: a valid path plus a separate loop
+  (`A->B, C->D, D->C`) still has exactly one dead end
+
+**Follow-up 1 (5 min) (reported at Delivery Hero, undated: "a simple one but have to use java
+lambda and collections... check if I am comfortable with latest Java features"):**
+*Rewrite it as `finalDestinationWithStreams`, with streams and collectors.* Same contract, same
+tests: run both versions through one parameterised test.
+
+**Follow-up 2 (5 min) (predicted, in the same spirit):** *Group today's orders by zone.
+`ordersPerZone` returns each zone's order count; `busiestZone` returns the zone with the most
+orders.*
+- `ordersPerZone` iterates in zone-name order; zones with no orders are absent
+- `busiestZone` of no orders is `Optional.empty()` (a quiet day is not an error)
+- Ties go to the zone name that sorts first. The answer must not depend on `HashMap` iteration
+  order: test it with many zones tied on one order each
+
+**Hints:**
+- Two passes: collect every `from` into a set, then the `to` that is not in it is the answer.
+  Collect the dead ends rather than returning the first one, so you can count them
+- Streams: `legs.stream().map(Leg::from).collect(Collectors.toSet())`, then
+  `.map(Leg::to).filter(Predicate.not(origins::contains)).distinct().toList()`
+- Busiest zone: `groupingBy(Order::zone, counting())`, then stream the entry set and take
+  `max(Map.Entry.comparingByValue())`. For the tie-break, `.thenComparing` on the key, reversed,
+  because `max` keeps the greatest. `groupingBy(Order::zone, TreeMap::new, counting())` gives a
+  sorted map
+
 ## Questions to Ask Afterwards
 
 - What is the time and space complexity of each task? Where did you trade space for time?
@@ -128,6 +172,17 @@ and how many orders fall in the window `[from, to)`.*
 - Binary search off-by-one traps: `lo <= hi` vs `lo < hi`, `hi = mid` vs `hi = mid - 1`, inclusive
   vs exclusive bounds, `(lo + hi) / 2` overflow, and returning "not found" vs an insertion point.
   How did your tests catch each one?
+- Task 5, streams vs loops: which version is easier to read, and for whom? Where do streams get
+  worse (checked exceptions, early exit, index access, a debugger stepping through lambdas, a
+  pipeline nobody can name)? On performance: both are O(n); the stream version has some per-element
+  overhead (lambdas, boxing with `counting()`) that rarely matters next to I/O, so measure with JMH
+  before choosing loops for speed. When would `parallelStream()` help here? (Almost never at this
+  size, and never with a shared mutable collector)
+- Task 5: how would you fully validate that the legs form one simple path, still in O(n)? (Every
+  city at most one leg out and one in, exactly one start, and a walk from the start covers all n
+  legs.) And if legs arrive as a stream of events, one rider at a time?
+- `groupingBy` returns a `HashMap`. Why did `busiestZone` need an explicit tie-break, and what
+  would a test that ran only one tie in a small map have missed?
 
 ## Tips for Interviewers
 
@@ -140,3 +195,10 @@ and how many orders fall in the window `[from, to)`.*
 - If Kadane starts `best` at `0`, hand them `[-3, -1, -2]`
 - For Task 4, ask for the duplicate test before they write the search. Most off-by-one bugs only
   show up with a run of equal timestamps at a window edge
+- Task 5 is easy on purpose. The signal is whether the candidate asks what happens with bad input
+  (a loop, two dead ends, no legs) instead of trusting the LeetCode guarantee, and whether the
+  stream rewrite reuses the same tests. If they write a nested loop, ask for the complexity with
+  100,000 legs
+- In the streams follow-up, listen for why, not just how: a candidate who can say when they would
+  keep the loop is stronger than one who streams everything. If `busiestZone` uses
+  `max(comparingByValue())` alone, give them two zones tied and ask whether the answer is stable
