@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: order-api
+
+server:
+  port: 8080
+
+# Story 5: per-customer token bucket on POST /orders.
+orders:
+  rate-limit:
+    capacity: 10
+    refill-per-second: 0.5
