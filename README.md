@@ -28,6 +28,7 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Order Tracking](java/order-tracking/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Order API](java/order-api/) | Spring Boot 4, Java 25 | Done |
 | Java | [Rider Dispatch](java/rider-dispatch/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Event Registration](java/event-registration/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Fix the Service](java/fix-the-service/) | Plain Java 21, JUnit 5 | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
@@ -67,6 +68,7 @@ interview-prep/
 │   ├── order-tracking/
 │   ├── order-api/
 │   ├── rider-dispatch/
+│   ├── event-registration/
 │   ├── fix-the-service/
 │   └── DELIVERY_HERO.md
 ├── python/
