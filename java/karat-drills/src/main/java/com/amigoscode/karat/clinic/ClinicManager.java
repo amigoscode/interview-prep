@@ -1,0 +1,81 @@
+package com.amigoscode.karat.clinic;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * We are building the back-end for a clinic appointment management system. The system tracks
+ * doctors, appointments and patient visits. A {@link Doctor} has an ID and a name; an
+ * {@link Appointment} has a doctor, a patient, a duration and a status (SCHEDULED, COMPLETED,
+ * CANCELLED or NO_SHOW). This class manages doctors and appointments and provides statistics.
+ *
+ * <p>Part 1: {@code ClinicManagerTest} is not passing because of a bug in this class. Read the
+ * code, run the test, fix the bug.
+ *
+ * <p>Part 2: we are extending the platform to track patient visits to doctors. Implement
+ * {@link #addPatientVisit} and {@link #getAverageVisitDurationByType}. Where the visits are
+ * stored is up to you.
+ */
+public class ClinicManager {
+
+    public final Map<Integer, Doctor> doctors = new HashMap<>();
+    public final List<Appointment> appointments = new ArrayList<>();
+
+    public void addDoctor(Doctor doctor) {
+        doctors.put(doctor.doctorId, doctor);
+    }
+
+    public void addAppointment(Appointment appointment) {
+        appointments.add(appointment);
+    }
+
+    /**
+     * Returns the number of appointments, the number of completed appointments and the no-show
+     * rate: NO_SHOW appointments as a fraction of all appointments, for example 0.2.
+     */
+    public AppointmentStats getAppointmentStatistics() {
+        int total = appointments.size();
+        int completed = 0;
+        for (Appointment a : appointments) {
+            if (a.status == AppointmentStatus.COMPLETED) {
+                completed++;
+            }
+        }
+        int noShows = 0;
+        for (Appointment a : appointments) {
+            if (a.status != AppointmentStatus.COMPLETED) {
+                noShows++;
+            }
+        }
+        double noShowRate;
+        if (total > 0) {
+            noShowRate = (double) noShows / total;
+        } else {
+            noShowRate = 0.0;
+        }
+        return new AppointmentStats(total, completed, noShowRate);
+    }
+
+    /**
+     * Part 2.1: stores a visit. If the visit's doctorId does not refer to a known doctor in this
+     * manager, the visit is ignored.
+     */
+    public void addPatientVisit(PatientVisit visit) {
+        throw new UnsupportedOperationException("part 2");
+    }
+
+    /**
+     * Part 2.2: the doctor's average visit duration in minutes for each visit type, as a map from
+     * visit type (CONSULTATION, FOLLOWUP, EMERGENCY) to average.
+     *
+     * <ol>
+     *   <li>Only visit types the doctor has at least one visit for appear in the map.
+     *   <li>If the doctor has no visits at all, return an empty map.
+     * </ol>
+     */
+    public Map<VisitType, Double> getAverageVisitDurationByType(int doctorId) {
+        throw new UnsupportedOperationException("part 2");
+    }
+}
