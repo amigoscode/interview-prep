@@ -28,7 +28,9 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Order Tracking](java/order-tracking/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Order API](java/order-api/) | Spring Boot 4, Java 25 | Done |
 | Java | [Rider Dispatch](java/rider-dispatch/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Event Registration](java/event-registration/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Fix the Service](java/fix-the-service/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Karat Drills](java/karat-drills/) | Plain Java 21, JUnit 5 | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
@@ -45,6 +47,12 @@ A collection of hands-on coding interview projects organized by language. Each p
 > at its brands Glovo, talabat and foodpanda). They use the same live-coding format, with solutions on
 > `solutions/<project>`. **Fix the Service** starts with 4 failing tests on purpose. See
 > [java/DELIVERY_HERO.md](java/DELIVERY_HERO.md) for every question mapped to its exercise.
+
+> **Karat prep:** **Karat Drills** rebuilds 19 real Karat coding questions (Java + React skillset, 2026
+> question bank) as one package each: a small back-office system with one failing test to fix, then two
+> functions to add against a spec with the tests provided, like the real screen. Solutions on
+> `solutions/karat-drills`. The theory half of the screen, every question answered, is in
+> [java/KARAT.md](java/KARAT.md).
 
 ## Structure
 
@@ -67,8 +75,11 @@ interview-prep/
 │   ├── order-tracking/
 │   ├── order-api/
 │   ├── rider-dispatch/
+│   ├── event-registration/
 │   ├── fix-the-service/
-│   └── DELIVERY_HERO.md
+│   ├── karat-drills/
+│   ├── DELIVERY_HERO.md
+│   └── KARAT.md
 ├── python/
 └── typescript/
 ```
