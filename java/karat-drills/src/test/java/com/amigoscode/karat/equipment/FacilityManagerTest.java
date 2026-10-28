@@ -1,6 +1,5 @@
 package com.amigoscode.karat.equipment;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. Two tests fail on purpose: that is part 1.
  */
-@Disabled("equipment drill: remove this line to begin part 1")
 class FacilityManagerTest {
 
     @Test
@@ -81,7 +79,6 @@ class FacilityManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void testGetActiveReservationIds() {
         FacilityManager manager = new FacilityManager();
 
@@ -104,7 +101,6 @@ class FacilityManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void testGetTotalMinutesByStatus() {
         FacilityManager manager = new FacilityManager();
 
@@ -135,5 +131,37 @@ class FacilityManagerTest {
         totals = manager.getTotalMinutesByStatus();
         assertThat(totals.get("ACTIVE")).isEqualTo(0);
         assertThat(totals.get("CANCELLED")).isEqualTo(210);
+    }
+
+    @Test
+    void addedEquipmentIsListed() {
+        FacilityManager manager = new FacilityManager();
+        Equipment treadmill = new Equipment(1, "Treadmill");
+
+        manager.addEquipment(treadmill);
+
+        assertThat(manager.equipmentList).containsExactly(treadmill);
+        assertThat(manager.equipmentList.get(0).getName()).isEqualTo("Treadmill");
+    }
+
+    @Test
+    void adjacentSlotsDoNotConflict() {
+        FacilityManager manager = new FacilityManager();
+        manager.makeReservation(new Reservation(101, "Alice Johnson", 1, 480, 600));
+
+        // Ends exactly when the other starts: no overlap
+        assertThat(manager.makeReservation(new Reservation(102, "Bob Smith", 1, 600, 660))).isTrue();
+        assertThat(manager.makeReservation(new Reservation(103, "Carol White", 1, 420, 480))).isTrue();
+    }
+
+    @Test
+    void rebookedSlotBlocksAThirdReservation() {
+        FacilityManager manager = new FacilityManager();
+        manager.makeReservation(new Reservation(101, "Alice Johnson", 1, 480, 600));
+        manager.cancelReservation(101);
+        manager.makeReservation(new Reservation(102, "Bob Smith", 1, 480, 600));
+
+        assertThat(manager.makeReservation(new Reservation(103, "Carol White", 1, 500, 520))).isFalse();
+        assertThat(manager.getActiveReservationIds()).containsExactly(102);
     }
 }

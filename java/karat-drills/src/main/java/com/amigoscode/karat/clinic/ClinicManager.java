@@ -1,6 +1,7 @@
 package com.amigoscode.karat.clinic;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,9 @@ public class ClinicManager {
     public final Map<Integer, Doctor> doctors = new HashMap<>();
     public final List<Appointment> appointments = new ArrayList<>();
 
+    /** Visits live here, keyed by doctor ID, so a doctor's visits are found without a scan. */
+    private final Map<Integer, List<PatientVisit>> visitsByDoctor = new HashMap<>();
+
     public void addDoctor(Doctor doctor) {
         doctors.put(doctor.doctorId, doctor);
     }
@@ -38,23 +42,17 @@ public class ClinicManager {
     public AppointmentStats getAppointmentStatistics() {
         int total = appointments.size();
         int completed = 0;
+        int noShows = 0;
         for (Appointment a : appointments) {
             if (a.status == AppointmentStatus.COMPLETED) {
                 completed++;
             }
-        }
-        int noShows = 0;
-        for (Appointment a : appointments) {
-            if (a.status != AppointmentStatus.COMPLETED) {
+            // Bug was counting every non-COMPLETED appointment (CANCELLED, SCHEDULED too) as a no-show.
+            if (a.status == AppointmentStatus.NO_SHOW) {
                 noShows++;
             }
         }
-        double noShowRate;
-        if (total > 0) {
-            noShowRate = (double) noShows / total;
-        } else {
-            noShowRate = 0.0;
-        }
+        double noShowRate = total > 0 ? (double) noShows / total : 0.0;
         return new AppointmentStats(total, completed, noShowRate);
     }
 
@@ -63,7 +61,10 @@ public class ClinicManager {
      * manager, the visit is ignored.
      */
     public void addPatientVisit(PatientVisit visit) {
-        throw new UnsupportedOperationException("part 2");
+        if (!doctors.containsKey(visit.doctorId)) {
+            return;
+        }
+        visitsByDoctor.computeIfAbsent(visit.doctorId, id -> new ArrayList<>()).add(visit);
     }
 
     /**
@@ -76,6 +77,17 @@ public class ClinicManager {
      * </ol>
      */
     public Map<VisitType, Double> getAverageVisitDurationByType(int doctorId) {
-        throw new UnsupportedOperationException("part 2");
+        Map<VisitType, Integer> totals = new EnumMap<>(VisitType.class);
+        Map<VisitType, Integer> counts = new EnumMap<>(VisitType.class);
+        for (PatientVisit visit : visitsByDoctor.getOrDefault(doctorId, List.of())) {
+            totals.merge(visit.visitType, visit.durationMinutes, Integer::sum);
+            counts.merge(visit.visitType, 1, Integer::sum);
+        }
+        Map<VisitType, Double> averages = new EnumMap<>(VisitType.class);
+        for (Map.Entry<VisitType, Integer> entry : totals.entrySet()) {
+            VisitType type = entry.getKey();
+            averages.put(type, (double) entry.getValue() / counts.get(type));
+        }
+        return averages;
     }
 }

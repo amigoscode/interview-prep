@@ -32,13 +32,15 @@ public class ReservationManager {
      * its ACTIVE reservations. An unknown pool has 0 available capacity.
      */
     public int getAvailableCapacity(int poolId) {
-        if (!computePools.containsKey(poolId)) {
+        ComputePool pool = computePools.get(poolId);
+        if (pool == null) {
             return 0;
         }
-        ComputePool pool = computePools.get(poolId);
         int usedCapacity = 0;
         for (Reservation reservation : reservations) {
-            if (reservation.poolId == poolId) {
+            // Bug was that every reservation on the pool consumed capacity, whatever its status.
+            // Only ACTIVE reservations hold capacity; CANCELLED and EXPIRED ones have given it back.
+            if (reservation.poolId == poolId && reservation.status == ReservationStatus.ACTIVE) {
                 usedCapacity += reservation.capacityUnits;
             }
         }
@@ -55,7 +57,13 @@ public class ReservationManager {
      * If either condition is not met the reservation is ignored.
      */
     public void addReservation(Reservation reservation) {
-        throw new UnsupportedOperationException("part 2");
+        if (!computePools.containsKey(reservation.poolId)) {
+            return;
+        }
+        if (reservation.capacityUnits > getAvailableCapacity(reservation.poolId)) {
+            return;
+        }
+        reservations.add(reservation);
     }
 
     /**
@@ -68,6 +76,14 @@ public class ReservationManager {
      * </ul>
      */
     public Map<Integer, Integer> getReservedCapacityByCustomer() {
-        throw new UnsupportedOperationException("part 2");
+        Map<Integer, Integer> capacityByCustomer = new HashMap<>();
+        for (Reservation reservation : reservations) {
+            if (reservation.status == ReservationStatus.ACTIVE) {
+                capacityByCustomer.merge(reservation.customerId, reservation.capacityUnits, Integer::sum);
+            }
+        }
+        // A customer whose active reservations add up to nothing holds no capacity: leave them out.
+        capacityByCustomer.values().removeIf(total -> total == 0);
+        return capacityByCustomer;
     }
 }

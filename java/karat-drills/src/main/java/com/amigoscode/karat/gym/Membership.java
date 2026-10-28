@@ -1,8 +1,11 @@
 package com.amigoscode.karat.gym;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * We are building a program to manage a gym's membership. The gym has multiple members, each with
@@ -19,19 +22,22 @@ import java.util.Map;
  */
 public class Membership {
 
+    private static final Map<MembershipStatus, Long> MONTHLY_FEE_CENTS = Map.of(
+            MembershipStatus.BRONZE, 0L,
+            MembershipStatus.SILVER, 2999L,
+            MembershipStatus.GOLD, 4999L);
+
     public final List<Member> members = new ArrayList<>();
+
+    /** Workouts live here, keyed by member ID, so {@link Member} stays a plain data holder. */
+    private final Map<Integer, List<Workout>> workoutsByMember = new HashMap<>();
 
     public void addMember(Member member) {
         members.add(member);
     }
 
     public void updateMembership(int memberId, MembershipStatus membershipStatus) {
-        for (Member member : members) {
-            if (member.memberId == memberId) {
-                member.membershipStatus = membershipStatus;
-                break;
-            }
-        }
+        findMember(memberId).ifPresent(member -> member.membershipStatus = membershipStatus);
     }
 
     /**
@@ -42,12 +48,15 @@ public class Membership {
         int totalMembers = members.size();
         int totalPaidMembers = 0;
         for (Member member : members) {
-            if (member.membershipStatus == MembershipStatus.GOLD
-                    || member.membershipStatus == MembershipStatus.SILVER) {
+            if (isPaid(member.membershipStatus)) {
                 totalPaidMembers++;
             }
         }
-        double conversionRate = (totalPaidMembers / totalMembers) * 100.0;
+        // Bug was integer division: (4 / 6) is 0 before the cast. Divide as doubles, and guard
+        // against an empty gym, where 0 / 0 is NaN.
+        double conversionRate = totalMembers == 0
+                ? 0.0
+                : totalPaidMembers * 100.0 / totalMembers;
         return new MembershipStatistics(totalMembers, totalPaidMembers, conversionRate);
     }
 
@@ -56,15 +65,31 @@ public class Membership {
      * is ignored.
      */
     public void addWorkout(int memberId, Workout workout) {
-        throw new UnsupportedOperationException("part 2");
+        if (findMember(memberId).isEmpty()) {
+            return;
+        }
+        workoutsByMember.computeIfAbsent(memberId, id -> new ArrayList<>()).add(workout);
     }
 
     /**
      * Part 2.2: the average workout duration in minutes for each member, as a map from member ID
-     * to average.
+     * to average. A member with no workouts has no average and is left out, so nobody divides by
+     * zero.
      */
     public Map<Integer, Double> getAverageWorkoutDurations() {
-        throw new UnsupportedOperationException("part 2");
+        Map<Integer, Double> averages = new LinkedHashMap<>();
+        for (Member member : members) {
+            List<Workout> workouts = workoutsByMember.getOrDefault(member.memberId, List.of());
+            if (workouts.isEmpty()) {
+                continue;
+            }
+            double total = 0;
+            for (Workout workout : workouts) {
+                total += workout.getDuration();
+            }
+            averages.put(member.memberId, total / workouts.size());
+        }
+        return averages;
     }
 
     /**
@@ -72,6 +97,18 @@ public class Membership {
      * 29.99 a month and GOLD 49.99 a month.
      */
     public long getTotalMonthlyRevenueCents() {
-        throw new UnsupportedOperationException("part 3");
+        long total = 0;
+        for (Member member : members) {
+            total += MONTHLY_FEE_CENTS.get(member.membershipStatus);
+        }
+        return total;
+    }
+
+    private static boolean isPaid(MembershipStatus status) {
+        return status == MembershipStatus.SILVER || status == MembershipStatus.GOLD;
+    }
+
+    private Optional<Member> findMember(int memberId) {
+        return members.stream().filter(member -> member.memberId == memberId).findFirst();
     }
 }

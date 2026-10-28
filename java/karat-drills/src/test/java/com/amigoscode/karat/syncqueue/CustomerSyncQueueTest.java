@@ -1,6 +1,5 @@
 package com.amigoscode.karat.syncqueue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("syncqueue drill: remove this line to begin part 1")
 class CustomerSyncQueueTest {
 
     private static Customer alice() {
@@ -48,7 +46,11 @@ class CustomerSyncQueueTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void emptyQueueHasNothingPending() {
+        assertThat(new CustomerSyncManager().countPendingUpdates()).isZero();
+    }
+
+    @Test
     void queueUpdate() {
         CustomerSyncManager manager = new CustomerSyncManager();
         manager.addCustomer(alice());
@@ -78,7 +80,28 @@ class CustomerSyncQueueTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void rejectedRequestDoesNotConsumeAnUpdateId() {
+        CustomerSyncManager manager = new CustomerSyncManager();
+        manager.addCustomer(alice());
+
+        assertThat(manager.queueUpdate("c1", "name", "Alice Smith", 100)).isNull(); // unchanged
+        assertThat(manager.queueUpdate("c1", "nickname", "Ally", 100)).isNull(); // unsupported
+
+        assertThat(manager.queueUpdate("c1", "company", "Globex", 101).updateId).isEqualTo(1);
+    }
+
+    @Test
+    void queueUpdateComparesAgainstTheCurrentValueNotTheLastSyncedOne() {
+        CustomerSyncManager manager = new CustomerSyncManager();
+        Customer customer = new Customer("c1", "Alice Jones", "alice@example.com", "5551234567", "Acme",
+                Map.of("name", "Alice Smith")); // the CRM still has the old name
+        manager.addCustomer(customer);
+
+        assertThat(manager.queueUpdate("c1", "name", "Alice Jones", 100)).isNull(); // equals current name
+        assertThat(manager.queueUpdate("c1", "name", "Alice Smith", 100)).isNotNull(); // differs from current name
+    }
+
+    @Test
     void cancelPendingUpdates() {
         CustomerSyncManager manager = new CustomerSyncManager();
         manager.addCustomer(alice());
@@ -101,5 +124,20 @@ class CustomerSyncQueueTest {
 
         assertThat(manager.cancelPendingUpdates("c1", "name")).isEqualTo(0); // nothing left to cancel
         assertThat(manager.cancelPendingUpdates("c99", "name")).isEqualTo(0); // unknown customer
+    }
+
+    @Test
+    void cancellingQueuedUpdatesTakesThemOutOfThePendingCount() {
+        CustomerSyncManager manager = new CustomerSyncManager();
+        manager.addCustomer(alice());
+        manager.queueUpdate("c1", "name", "Alice Jones", 100);
+        manager.queueUpdate("c1", "name", "Alice J.", 101);
+        manager.queueUpdate("c1", "phone", "5550000000", 102);
+        assertThat(manager.countPendingUpdates()).isEqualTo(3);
+
+        assertThat(manager.cancelPendingUpdates("c1", "name")).isEqualTo(2);
+
+        assertThat(manager.countPendingUpdates()).isEqualTo(1);
+        assertThat(manager.updates).hasSize(3); // cancelled updates stay in the history
     }
 }

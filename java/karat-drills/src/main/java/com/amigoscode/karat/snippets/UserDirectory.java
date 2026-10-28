@@ -22,12 +22,13 @@ public class UserDirectory {
 
     /** Renames a user. Returns false if nobody has {@code oldUsername}. */
     public boolean rename(String oldUsername, String newUsername) {
-        for (User user : users) {
-            if (user.getUsername().equals(oldUsername)) {
-                user.setUsername(newUsername);
-                return true;
-            }
+        // Bug was user.setUsername(...) in place: the set kept the user in the bucket of the old
+        // hash, so contains(newUsername) was false. Remove the old key, add the new one.
+        User old = new User(oldUsername);
+        if (!users.remove(old)) {
+            return false;
         }
-        return false;
+        users.add(old.withUsername(newUsername));
+        return true;
     }
 }

@@ -1,6 +1,5 @@
 package com.amigoscode.karat.alerts;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("alerts drill: remove this line to begin part 1")
 class AlertRouterTest {
 
     @Test
@@ -51,7 +49,29 @@ class AlertRouterTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void getAlertReturnsNullForAnUnknownId() {
+        AlertRouter router = new AlertRouter();
+        Alert alert = new Alert(1, "auth", Severity.HIGH, 100);
+        router.addAlert(alert);
+
+        assertThat(router.getAlert(1)).isSameAs(alert);
+        assertThat(router.getAlert(2)).isNull();
+        assertThat(new AlertRouter().hasOpenAlert("auth")).isFalse();
+    }
+
+    @Test
+    void resolvingTheOnlyOpenAlertClosesTheService() {
+        AlertRouter router = new AlertRouter();
+        Alert alert = new Alert(1, "auth", Severity.HIGH, 100);
+        router.addAlert(alert);
+        assertThat(router.hasOpenAlert("auth")).isTrue();
+
+        alert.resolvedAt = 130;
+
+        assertThat(router.hasOpenAlert("auth")).isFalse();
+    }
+
+    @Test
     void recordAttempt() {
         AlertRouter router = new AlertRouter();
         router.addAlert(new Alert(10, "auth", Severity.HIGH, 0, null));
@@ -73,7 +93,6 @@ class AlertRouterTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void getAttemptCounts() {
         AlertRouter router = new AlertRouter();
         router.addAlert(new Alert(10, "auth", Severity.HIGH, 0, null));
@@ -92,5 +111,26 @@ class AlertRouterTest {
         assertThat(counts.get(10)).isEqualTo(3);
         assertThat(counts.get(20)).isEqualTo(1);
         assertThat(counts).doesNotContainKey(30);
+    }
+
+    @Test
+    void emptyRouterHasNoAttemptCounts() {
+        AlertRouter router = new AlertRouter();
+        assertThat(router.getAttemptCounts()).isEmpty();
+
+        router.addAlert(new Alert(10, "auth", Severity.HIGH, 0, null));
+        router.recordAttempt(999, new DeliveryAttempt("alice", 9)); // ignored: no such alert
+        assertThat(router.getAttemptCounts()).isEmpty();
+    }
+
+    @Test
+    void identicalAttemptsAreCountedSeparately() {
+        AlertRouter router = new AlertRouter();
+        router.addAlert(new Alert(10, "auth", Severity.HIGH, 0, null));
+
+        router.recordAttempt(10, new DeliveryAttempt("alice", 5));
+        router.recordAttempt(10, new DeliveryAttempt("alice", 5));
+
+        assertThat(router.getAttemptCounts().get(10)).isEqualTo(2);
     }
 }

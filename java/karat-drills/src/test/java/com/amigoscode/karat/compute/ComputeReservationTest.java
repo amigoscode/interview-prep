@@ -1,6 +1,5 @@
 package com.amigoscode.karat.compute;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("compute drill: remove this line to begin part 1")
 class ComputeReservationTest {
 
     @Test
@@ -27,7 +25,16 @@ class ComputeReservationTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void poolWithNoReservationsHasAllOfItsCapacity() {
+        ReservationManager manager = new ReservationManager();
+        manager.addComputePool(new ComputePool(1, "us-east", 100));
+        manager.addComputePool(new ComputePool(2, "eu-west", 40));
+        manager.reservations.add(new Reservation(101, 1001, 1, 30, ReservationStatus.ACTIVE, 1000, 2000));
+
+        assertThat(manager.getAvailableCapacity(2)).isEqualTo(40); // pool 1's reservation does not count
+    }
+
+    @Test
     void addReservation() {
         ReservationManager manager = new ReservationManager();
         manager.addComputePool(new ComputePool(1, "us-east", 100));
@@ -43,7 +50,19 @@ class ComputeReservationTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void reservationThatExactlyFillsThePoolIsStored() {
+        ReservationManager manager = new ReservationManager();
+        manager.addComputePool(new ComputePool(1, "us-east", 100));
+        manager.addReservation(new Reservation(201, 1001, 1, 60, ReservationStatus.ACTIVE, 1000, 2000));
+
+        manager.addReservation(new Reservation(202, 1002, 1, 40, ReservationStatus.ACTIVE, 1000, 2000)); // 40 <= 40
+        manager.addReservation(new Reservation(203, 1003, 1, 1, ReservationStatus.ACTIVE, 1000, 2000)); // pool is full
+
+        assertThat(manager.reservations).hasSize(2);
+        assertThat(manager.getAvailableCapacity(1)).isZero();
+    }
+
+    @Test
     void reservedCapacityByCustomer() {
         ReservationManager manager = new ReservationManager();
         manager.addComputePool(new ComputePool(1, "us-east", 200));
@@ -62,5 +81,18 @@ class ComputeReservationTest {
         assertThat(result).doesNotContainKey(1003);
         assertThat(result).doesNotContainKey(1004);
         assertThat(result).doesNotContainKey(1005);
+    }
+
+    @Test
+    void reservedCapacityIsSummedAcrossPools() {
+        ReservationManager manager = new ReservationManager();
+        manager.addComputePool(new ComputePool(1, "us-east", 100));
+        manager.addComputePool(new ComputePool(2, "eu-west", 100));
+        manager.addReservation(new Reservation(401, 1001, 1, 30, ReservationStatus.ACTIVE, 1000, 2000));
+        manager.addReservation(new Reservation(402, 1001, 2, 45, ReservationStatus.ACTIVE, 1000, 2000));
+
+        assertThat(manager.getReservedCapacityByCustomer()).containsOnlyKeys(1001);
+        assertThat(manager.getReservedCapacityByCustomer().get(1001)).isEqualTo(75);
+        assertThat(new ReservationManager().getReservedCapacityByCustomer()).isEmpty();
     }
 }

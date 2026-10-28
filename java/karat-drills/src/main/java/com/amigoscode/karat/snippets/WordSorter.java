@@ -1,6 +1,5 @@
 package com.amigoscode.karat.snippets;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -18,12 +17,10 @@ public final class WordSorter {
      * order. The list passed in is not changed.
      */
     public static List<String> sortedByLength(List<String> words) {
-        Collections.sort(words, new Comparator<String>() {
-            @Override
-            public int compare(String s1, String s2) {
-                return s1.length() - s2.length();
-            }
-        });
-        return words;
+        // Bug was Collections.sort(words, ...): it sorted the caller's list in place. Stream to a new
+        // list instead; sorted() is stable, and comparingInt cannot overflow like s1.length() - s2.length().
+        return words.stream()
+                .sorted(Comparator.comparingInt(String::length))
+                .toList();
     }
 }

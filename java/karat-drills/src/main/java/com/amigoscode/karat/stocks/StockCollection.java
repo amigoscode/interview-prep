@@ -1,6 +1,7 @@
 package com.amigoscode.karat.stocks;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -40,16 +41,22 @@ public class StockCollection {
 
     /** Returns the maximum price recorded in this collection, or -1 if there are no records. */
     public int getMaxPrice() {
-        return priceRecords.stream().mapToInt(record -> record.price).max().getAsInt();
+        // Bug was getAsInt() on an empty OptionalInt, which throws NoSuchElementException.
+        return priceRecords.stream().mapToInt(record -> record.price).max().orElse(-1);
     }
 
     /** Returns the minimum price recorded in this collection, or -1 if there are no records. */
     public int getMinPrice() {
-        return priceRecords.stream().mapToInt(record -> record.price).min().getAsInt();
+        // Same bug as getMaxPrice: orElse(-1) instead of getAsInt().
+        return priceRecords.stream().mapToInt(record -> record.price).min().orElse(-1);
     }
 
     /** Returns the average price recorded in this collection, or -1.0 if there are no records. */
     public double getAvgPrice() {
+        // Bug was dividing by zero on an empty collection, which gives NaN instead of -1.0.
+        if (priceRecords.isEmpty()) {
+            return -1.0;
+        }
         double total = priceRecords.stream().mapToInt(record -> record.price).sum();
         return total / priceRecords.size();
     }
@@ -68,6 +75,22 @@ public class StockCollection {
      * </ol>
      */
     public PriceChange getBiggestChange() {
-        throw new UnsupportedOperationException("part 2");
+        if (priceRecords.size() < 2) {
+            return null;
+        }
+        List<PriceRecord> sorted = new ArrayList<>(priceRecords);
+        sorted.sort(Comparator.comparing(record -> record.date));
+
+        PriceChange biggest = null;
+        for (int i = 0; i < sorted.size() - 1; i++) {
+            PriceRecord from = sorted.get(i);
+            PriceRecord to = sorted.get(i + 1);
+            int change = to.price - from.price;
+            // Strictly greater keeps the earliest pair on a tie.
+            if (biggest == null || Math.abs(change) > Math.abs(biggest.change())) {
+                biggest = new PriceChange(change, from.date, to.date);
+            }
+        }
+        return biggest;
     }
 }

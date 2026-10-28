@@ -1,6 +1,5 @@
 package com.amigoscode.karat.access;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("access drill: remove this line to begin part 1")
 class AccessManagerTest {
 
     @Test
@@ -46,7 +44,29 @@ class AccessManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void updatingTheAccessLevelChangesAuthorization() {
+        AccessManager manager = new AccessManager();
+        manager.addUser(new User(1, "Vera Visitor", AccessLevel.VISITOR));
+        assertThat(manager.isAuthorized(1, AccessLevel.ADMIN)).isFalse();
+
+        manager.updateAccessLevel(1, AccessLevel.ADMIN);
+
+        assertThat(manager.isAuthorized(1, AccessLevel.ADMIN)).isTrue();
+        assertThat(manager.isAuthorized(1, AccessLevel.VISITOR)).isTrue();
+    }
+
+    @Test
+    void updatingAnUnknownUserChangesNothing() {
+        AccessManager manager = new AccessManager();
+        manager.addUser(new User(1, "Vera Visitor", AccessLevel.VISITOR));
+
+        manager.updateAccessLevel(99, AccessLevel.ADMIN);
+
+        assertThat(manager.isAuthorized(1, AccessLevel.STAFF)).isFalse();
+        assertThat(manager.isAuthorized(99, AccessLevel.VISITOR)).isFalse();
+    }
+
+    @Test
     void userIdsAtOrAboveAreSortedAndIncludeTheLevelItself() {
         AccessManager manager = new AccessManager();
         manager.addUser(new User(5, "Ada Admin", AccessLevel.ADMIN));
@@ -60,7 +80,6 @@ class AccessManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void userIdsAtOrAboveIsEmptyWhenNobodyQualifies() {
         AccessManager manager = new AccessManager();
         assertThat(manager.getUserIdsAtOrAbove(AccessLevel.VISITOR)).isEmpty();
@@ -71,7 +90,6 @@ class AccessManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void countByLevelCountsEachLevelSeparately() {
         AccessManager manager = new AccessManager();
         manager.addUser(new User(1, "Vera Visitor", AccessLevel.VISITOR));
@@ -89,7 +107,6 @@ class AccessManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void countByLevelOmitsLevelsWithNoUsers() {
         AccessManager manager = new AccessManager();
         assertThat(manager.getCountByLevel()).isEmpty();
@@ -103,5 +120,17 @@ class AccessManagerTest {
         assertThat(counts.get(AccessLevel.STAFF)).isEqualTo(2);
         assertThat(counts).doesNotContainKey(AccessLevel.VISITOR);
         assertThat(counts).doesNotContainKey(AccessLevel.ADMIN);
+    }
+
+    @Test
+    void reportsFollowAccessLevelUpdates() {
+        AccessManager manager = new AccessManager();
+        manager.addUser(new User(1, "Vera Visitor", AccessLevel.VISITOR));
+        manager.addUser(new User(2, "Sam Staff", AccessLevel.STAFF));
+
+        manager.updateAccessLevel(1, AccessLevel.ADMIN);
+
+        assertThat(manager.getUserIdsAtOrAbove(AccessLevel.STAFF)).containsExactly(1, 2);
+        assertThat(manager.getCountByLevel()).containsOnlyKeys(AccessLevel.STAFF, AccessLevel.ADMIN);
     }
 }

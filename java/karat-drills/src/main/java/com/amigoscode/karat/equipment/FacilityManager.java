@@ -1,6 +1,8 @@
 package com.amigoscode.karat.equipment;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +44,8 @@ public class FacilityManager {
 
     private boolean isAvailable(int equipmentId, int startTime, int endTime) {
         for (Reservation res : reservations) {
-            if (res.getEquipmentId() == equipmentId) {
+            // Bug was that cancelled reservations still blocked the slot; only ACTIVE ones count.
+            if (res.getEquipmentId() == equipmentId && res.getStatus() == ReservationStatus.ACTIVE) {
                 if (startTime < res.getEndTime() && endTime > res.getStartTime()) {
                     return false;
                 }
@@ -56,10 +59,11 @@ public class FacilityManager {
         for (Reservation res : reservations) {
             if (res.getReservationId() == reservationId) {
                 res.setStatus(ReservationStatus.CANCELLED);
-                return false;
+                // Bug was the return values the wrong way round: true on success, false when not found.
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**
@@ -67,7 +71,14 @@ public class FacilityManager {
      * are no active reservations, returns an empty list.
      */
     public List<Integer> getActiveReservationIds() {
-        throw new UnsupportedOperationException("part 2");
+        List<Integer> ids = new ArrayList<>();
+        for (Reservation res : reservations) {
+            if (res.getStatus() == ReservationStatus.ACTIVE) {
+                ids.add(res.getReservationId());
+            }
+        }
+        Collections.sort(ids);
+        return ids;
     }
 
     /**
@@ -76,6 +87,13 @@ public class FacilityManager {
      * reservations. Both keys are always present, even if the total is 0.
      */
     public Map<String, Integer> getTotalMinutesByStatus() {
-        throw new UnsupportedOperationException("part 2");
+        Map<String, Integer> totals = new HashMap<>();
+        for (ReservationStatus status : ReservationStatus.values()) {
+            totals.put(status.name(), 0);
+        }
+        for (Reservation res : reservations) {
+            totals.merge(res.getStatus().name(), res.getDuration(), Integer::sum);
+        }
+        return totals;
     }
 }

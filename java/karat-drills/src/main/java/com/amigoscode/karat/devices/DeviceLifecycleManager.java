@@ -47,7 +47,8 @@ public class DeviceLifecycleManager {
         if (device == null) {
             return false;
         }
-        if (!VALID_STATUSES.contains(newStatus)) {
+        // Bug was checking only that the status name exists, never that the transition is allowed.
+        if (!VALID_TRANSITIONS.get(device.status).contains(newStatus)) {
             return false;
         }
         device.status = newStatus;
@@ -60,7 +61,13 @@ public class DeviceLifecycleManager {
      * same ID is already registered, and its status is REGISTERED. Otherwise nothing changes.
      */
     public boolean registerDevice(Device device) {
-        throw new UnsupportedOperationException("part 2");
+        if (!SUPPORTED_DEVICE_TYPES.contains(device.deviceType)
+                || devices.containsKey(device.deviceId)
+                || !"REGISTERED".equals(device.status)) {
+            return false;
+        }
+        devices.put(device.deviceId, device);
+        return true;
     }
 
     /**
@@ -69,6 +76,13 @@ public class DeviceLifecycleManager {
      * ascending order.
      */
     public List<String> getDevicesDueForMaintenance(int currentDay) {
-        throw new UnsupportedOperationException("part 2");
+        List<String> due = new ArrayList<>();
+        for (Device device : devices.values()) {
+            if ("ACTIVE".equals(device.status) && device.nextMaintenanceDay <= currentDay) {
+                due.add(device.deviceId);
+            }
+        }
+        due.sort(null);
+        return due;
     }
 }

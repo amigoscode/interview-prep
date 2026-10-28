@@ -1,6 +1,5 @@
 package com.amigoscode.karat.bank;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("bank drill: remove this line to begin part 1")
 class BankImportTest {
 
     @Test
@@ -58,7 +56,19 @@ class BankImportTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void unknownAccountHasAnEmptySummary() {
+        ImportSystem system = new ImportSystem();
+        system.addTransaction(new Transaction("t001", 101, 500.00, TransactionType.DEPOSIT, 1, "Salary", "SRC_A"));
+
+        Map<String, Object> summary = system.getAccountSummary(999);
+        assertThat((double) summary.get("total_credits")).isZero();
+        assertThat((double) summary.get("total_debits")).isZero();
+        assertThat((double) summary.get("net_change")).isZero();
+        assertThat((int) summary.get("transaction_count")).isZero();
+        assertThat(system.balances).doesNotContainKey(999);
+    }
+
+    @Test
     void addTransaction() {
         ImportSystem system = new ImportSystem();
         assertThat(system.balances).isEmpty();
@@ -101,7 +111,18 @@ class BankImportTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void balanceAndSummaryAgreeOnTheNetChange() {
+        ImportSystem system = new ImportSystem();
+        system.addTransaction(new Transaction("t001", 101, 500.00, TransactionType.DEPOSIT, 1, "Salary", "SRC_A"));
+        system.addTransaction(new Transaction("t002", 101, 200.00, TransactionType.TRANSFER, 2, "Wire out", "SRC_A"));
+        system.addTransaction(new Transaction("t003", 101, 20.00, TransactionType.INTEREST, 3, "Interest", "SRC_A"));
+
+        double netChange = (double) system.getAccountSummary(101).get("net_change");
+        assertThat(system.balances.get(101)).isCloseTo(netChange, within(1e-4));
+        assertThat(system.balances).containsOnlyKeys(101);
+    }
+
+    @Test
     void typeSummary() {
         ImportSystem system = new ImportSystem();
         // A mix of transactions across two accounts covering all five types.
@@ -130,5 +151,10 @@ class BankImportTest {
 
         Map<String, Map<String, Object>> expected2 = Map.of("DEPOSIT", Map.of("count", 2, "total_amount", 300.00));
         assertThat(system2.getTypeSummary()).containsExactlyInAnyOrderEntriesOf(expected2);
+    }
+
+    @Test
+    void typeSummaryOfAnEmptySystemIsEmpty() {
+        assertThat(new ImportSystem().getTypeSummary()).isEmpty();
     }
 }

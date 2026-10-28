@@ -1,6 +1,5 @@
 package com.amigoscode.karat.clinic;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("clinic drill: remove this line to begin part 1")
 class ClinicManagerTest {
 
     @Test
@@ -32,7 +30,27 @@ class ClinicManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void emptyClinicHasZeroStatistics() {
+        AppointmentStats stats = new ClinicManager().getAppointmentStatistics();
+
+        assertThat(stats.totalAppointments).isZero();
+        assertThat(stats.completedAppointments).isZero();
+        assertThat(stats.noShowRate).isZero();
+    }
+
+    @Test
+    void allNoShowsGivesRateOfOne() {
+        ClinicManager cm = new ClinicManager();
+        cm.addAppointment(new Appointment(1, 10, 100, 30, AppointmentStatus.NO_SHOW));
+        cm.addAppointment(new Appointment(2, 10, 101, 45, AppointmentStatus.NO_SHOW));
+
+        AppointmentStats stats = cm.getAppointmentStatistics();
+
+        assertThat(stats.completedAppointments).isZero();
+        assertThat(stats.noShowRate).isCloseTo(1.0, within(1e-4));
+    }
+
+    @Test
     void addPatientVisit() {
         ClinicManager cm = new ClinicManager();
         cm.addDoctor(new Doctor(1, "dr_smith"));
@@ -58,7 +76,6 @@ class ClinicManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void averageVisitDurationByType() {
         ClinicManager cm = new ClinicManager();
         cm.addDoctor(new Doctor(1, "dr_smith"));
@@ -82,5 +99,15 @@ class ClinicManagerTest {
         // doctor with no visits
         cm.addDoctor(new Doctor(3, "dr_brown"));
         assertThat(cm.getAverageVisitDurationByType(3)).isEmpty();
+    }
+
+    @Test
+    void doctorNeverAddedHasEmptyAverages() {
+        ClinicManager cm = new ClinicManager();
+        cm.addDoctor(new Doctor(1, "dr_smith"));
+        cm.addPatientVisit(new PatientVisit(1, 100, 1, 540, 30, VisitType.CONSULTATION));
+
+        assertThat(cm.getAverageVisitDurationByType(42)).isEmpty();
+        assertThat(cm.getAverageVisitDurationByType(1)).containsOnlyKeys(VisitType.CONSULTATION);
     }
 }

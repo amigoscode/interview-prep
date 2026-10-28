@@ -1,6 +1,5 @@
 package com.amigoscode.karat.licenses;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,7 +12,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("licenses drill: remove this line to begin part 1")
 class LicensePoolManagerTest {
 
     @Test
@@ -79,7 +77,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void checkoutLicense1() {
         // Test that checkoutLicense assigns an available license and sets all of its fields.
         LicensePoolManager manager = new LicensePoolManager();
@@ -96,7 +93,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void checkoutLicense2() {
         // Test checkoutLicense when multiple licenses are available.
         LicensePoolManager manager = new LicensePoolManager();
@@ -110,7 +106,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void checkoutLicense3() {
         // Test that checkoutLicense returns null whenever there is nothing to assign: the user
         // already holds a license, no license is available, or the pool is empty.
@@ -143,7 +138,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void checkoutLicense4() {
         // Test that checkoutLicense skips a lower-id license already IN_USE and held by a
         // different user, assigning the available higher-id license instead.
@@ -167,7 +161,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void returnLicense1() {
         // Test that returnLicense clears an in-use license's fields and makes it available.
         LicensePoolManager manager = new LicensePoolManager();
@@ -184,7 +177,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void returnLicense2() {
         // Test that returnLicense returns false when the user does not hold a license.
         LicensePoolManager manager = new LicensePoolManager();
@@ -196,7 +188,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void returnLicense3() {
         // Test that a license freed by returnLicense can immediately be checked out by another user.
         LicensePoolManager manager = new LicensePoolManager();
@@ -210,7 +201,6 @@ class LicensePoolManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void returnLicense4() {
         // Test returnLicense with an unrelated license present, followed by a checkoutLicense call.
         LicensePoolManager manager = new LicensePoolManager();
@@ -238,5 +228,46 @@ class LicensePoolManagerTest {
 
         assertThat(licenseId).isEqualTo(2);
         assertThat(manager.licenses.get(5).status).isEqualTo("AVAILABLE");
+    }
+
+    @Test
+    void checkoutSkipsAnAvailableLicenseWithALeftoverUser() {
+        // Part 1 and part 2 meet here: a half-cleared license is not handed out.
+        LicensePoolManager manager = new LicensePoolManager();
+        manager.licenses.put(1, new License(1, "AVAILABLE", "U-9"));
+        manager.licenses.put(2, new License(2, "AVAILABLE"));
+
+        assertThat(manager.checkoutLicense("U-1", 100)).isEqualTo(2);
+        assertThat(manager.licenses.get(1).status).isEqualTo("AVAILABLE");
+        assertThat(manager.licenses.get(1).assignedUserId).isEqualTo("U-9");
+    }
+
+    @Test
+    void returnLicenseFreesOnlyThatUsersLicense() {
+        LicensePoolManager manager = new LicensePoolManager();
+        manager.licenses.put(1, new License(1, "IN_USE", "U-1", 10, 10));
+        manager.licenses.put(2, new License(2, "IN_USE", "U-2", 20, 20));
+
+        assertThat(manager.returnLicense("U-1")).isTrue();
+        assertThat(manager.licenses.get(1).status).isEqualTo("AVAILABLE");
+        assertThat(manager.licenses.get(2).status).isEqualTo("IN_USE");
+        assertThat(manager.licenses.get(2).assignedUserId).isEqualTo("U-2");
+
+        // Returning twice does nothing the second time.
+        assertThat(manager.returnLicense("U-1")).isFalse();
+        assertThat(new LicensePoolManager().returnLicense("U-1")).isFalse();
+    }
+
+    @Test
+    void twoUsersGetTheTwoLowestIdsInOrder() {
+        LicensePoolManager manager = new LicensePoolManager();
+        manager.licenses.put(30, new License(30, "AVAILABLE"));
+        manager.licenses.put(10, new License(10, "AVAILABLE"));
+        manager.licenses.put(20, new License(20, "AVAILABLE"));
+
+        assertThat(manager.checkoutLicense("U-1", 1)).isEqualTo(10);
+        assertThat(manager.checkoutLicense("U-2", 2)).isEqualTo(20);
+        assertThat(manager.checkoutLicense("U-3", 3)).isEqualTo(30);
+        assertThat(manager.checkoutLicense("U-4", 4)).isNull();
     }
 }

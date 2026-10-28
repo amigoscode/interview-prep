@@ -2,6 +2,7 @@ package com.amigoscode.karat.payments;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,8 +37,11 @@ public class AccountManager {
         double balance = 0.0;
         for (Transaction tx : transactions) {
             if (tx.accountId == accountId) {
+                // Bug was ignoring DEBIT transactions: only credits were added, debits never subtracted.
                 if (tx.type == TransactionType.CREDIT) {
                     balance += tx.amount;
+                } else {
+                    balance -= tx.amount;
                 }
             }
         }
@@ -56,6 +60,16 @@ public class AccountManager {
      * </ol>
      */
     public Map<Integer, Double> getAverageTransactionAmountByAccount() {
-        throw new UnsupportedOperationException("part 2");
+        Map<Integer, Double> totals = new LinkedHashMap<>();
+        Map<Integer, Integer> counts = new HashMap<>();
+        for (Transaction tx : transactions) {
+            totals.merge(tx.accountId, Math.abs(tx.amount), Double::sum);
+            counts.merge(tx.accountId, 1, Integer::sum);
+        }
+        Map<Integer, Double> averages = new LinkedHashMap<>();
+        for (Map.Entry<Integer, Double> entry : totals.entrySet()) {
+            averages.put(entry.getKey(), entry.getValue() / counts.get(entry.getKey()));
+        }
+        return averages;
     }
 }

@@ -2,6 +2,7 @@ package com.amigoscode.karat.syncqueue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -38,7 +39,7 @@ public class CustomerSyncManager {
     public int countPendingUpdates() {
         int count = 0;
         for (QueuedUpdate update : updates.values()) {
-            if ("PENDING".equals(update.status) || "FAILED".equals(update.status)) {
+            if (isEligibleForSync(update)) {
                 count++;
             }
         }
@@ -59,7 +60,17 @@ public class CustomerSyncManager {
      * created update, or null when any validation fails: the request is then ignored.
      */
     public QueuedUpdate queueUpdate(String customerId, String fieldName, String newValue, int createdAt) {
-        throw new UnsupportedOperationException("part 2");
+        Customer customer = customers.get(customerId);
+        if (customer == null || !SUPPORTED_FIELDS.contains(fieldName)) {
+            return null;
+        }
+        if (Objects.equals(currentValue(customer, fieldName), newValue)) {
+            return null;
+        }
+        QueuedUpdate update = new QueuedUpdate(
+                nextUpdateId++, customerId, fieldName, newValue, createdAt, "PENDING", 0, null);
+        updates.put(update.updateId, update);
+        return update;
     }
 
     /**
@@ -68,6 +79,36 @@ public class CustomerSyncManager {
      * updates cancelled, or 0 if the customer does not exist or no matching updates are found.
      */
     public int cancelPendingUpdates(String customerId, String fieldName) {
-        throw new UnsupportedOperationException("part 2");
+        if (!customers.containsKey(customerId)) {
+            return 0;
+        }
+        int cancelled = 0;
+        for (QueuedUpdate update : updates.values()) {
+            if (update.customerId.equals(customerId)
+                    && update.fieldName.equals(fieldName)
+                    && "PENDING".equals(update.status)) {
+                update.status = "CANCELLED";
+                cancelled++;
+            }
+        }
+        return cancelled;
+    }
+
+    private static boolean isEligibleForSync(QueuedUpdate update) {
+        // Bug was that every FAILED update counted, including NON_RETRYABLE ones that will never
+        // sync. Only a RETRYABLE failure goes back into the queue.
+        return "PENDING".equals(update.status)
+                || ("FAILED".equals(update.status) && "RETRYABLE".equals(update.errorType));
+    }
+
+    /** The customer's current value of a supported field, as held on our side. */
+    private static String currentValue(Customer customer, String fieldName) {
+        return switch (fieldName) {
+            case "name" -> customer.name;
+            case "email" -> customer.email;
+            case "phone" -> customer.phone;
+            case "company" -> customer.company;
+            default -> throw new IllegalArgumentException("unsupported field: " + fieldName);
+        };
     }
 }

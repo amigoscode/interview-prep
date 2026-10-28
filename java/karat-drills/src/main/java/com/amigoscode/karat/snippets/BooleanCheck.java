@@ -8,9 +8,7 @@ public final class BooleanCheck {
 
     /** Returns whether {@code value} is true. A missing value counts as false. */
     public static boolean isValid(Boolean value) {
-        if (!value.equals(Boolean.TRUE)) {
-            return false;
-        }
-        return true;
+        // Bug was value.equals(...): a null Boolean threw NullPointerException. Put the constant first.
+        return Boolean.TRUE.equals(value);
     }
 }

@@ -1,6 +1,7 @@
 package com.amigoscode.karat.access;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,8 @@ public class AccessManager {
     public boolean isAuthorized(int userId, AccessLevel requiredLevel) {
         for (User user : users) {
             if (user.userId == userId) {
-                return user.accessLevel == requiredLevel;
+                // Bug was == on the level, so a higher level was not authorized for a lower area.
+                return user.accessLevel.getRank() >= requiredLevel.getRank();
             }
         }
         return false;
@@ -51,7 +53,14 @@ public class AccessManager {
      * ascending order. Empty when nobody qualifies.
      */
     public List<Integer> getUserIdsAtOrAbove(AccessLevel level) {
-        throw new UnsupportedOperationException("part 2");
+        List<Integer> ids = new ArrayList<>();
+        for (User user : users) {
+            if (user.accessLevel.getRank() >= level.getRank()) {
+                ids.add(user.userId);
+            }
+        }
+        ids.sort(null);
+        return ids;
     }
 
     /**
@@ -59,6 +68,10 @@ public class AccessManager {
      * with at least one user appear; levels with none are omitted.
      */
     public Map<AccessLevel, Integer> getCountByLevel() {
-        throw new UnsupportedOperationException("part 2");
+        Map<AccessLevel, Integer> counts = new EnumMap<>(AccessLevel.class);
+        for (User user : users) {
+            counts.merge(user.accessLevel, 1, Integer::sum);
+        }
+        return counts;
     }
 }

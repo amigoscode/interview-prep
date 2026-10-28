@@ -1,8 +1,11 @@
 package com.amigoscode.karat.fooddelivery;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * We are building a program to manage a food delivery platform. The platform has multiple
@@ -22,19 +25,22 @@ import java.util.Map;
  */
 public class OrderManager {
 
+    private static final double FIRST_KM_FEE = 2.0;
+    private static final double EXTRA_KM_FEE = 1.0;
+    private static final double FREE_DELIVERY_VALUE = 50.0;
+    private static final double HALF_PRICE_VALUE = 30.0;
+
     public final List<Order> orders = new ArrayList<>();
+
+    /** Deliveries live here, keyed by order ID, so {@link Order} stays a plain data holder. */
+    private final Map<Integer, List<Delivery>> deliveriesByOrder = new HashMap<>();
 
     public void addOrder(Order order) {
         orders.add(order);
     }
 
     public void updateOrderStatus(int orderId, OrderStatus newStatus) {
-        for (Order order : orders) {
-            if (order.orderId == orderId) {
-                order.status = newStatus;
-                return;
-            }
-        }
+        findOrder(orderId).ifPresent(order -> order.status = newStatus);
     }
 
     /**
@@ -44,15 +50,13 @@ public class OrderManager {
     public OrderStats getOrderStatistics() {
         int total = orders.size();
         int active = 0;
-        for (Order order : orders) {
-            if (order.status == OrderStatus.PLACED || order.status == OrderStatus.PREPARING) {
-                active++;
-            }
-        }
         int closed = 0;
         for (Order order : orders) {
-            if (order.status == OrderStatus.DELIVERED || order.status == OrderStatus.CANCELED) {
+            if (isClosed(order.status)) {
                 closed++;
+            } else {
+                // Bug was leaving OUT_FOR_DELIVERY out of the active statuses.
+                active++;
             }
         }
         return new OrderStats(total, active, closed);
@@ -64,7 +68,11 @@ public class OrderManager {
      * delivery is ignored and {@code false} is returned.
      */
     public boolean addDelivery(int orderId, Delivery delivery) {
-        throw new UnsupportedOperationException("part 2");
+        if (findOrder(orderId).isEmpty()) {
+            return false;
+        }
+        deliveriesByOrder.computeIfAbsent(orderId, id -> new ArrayList<>()).add(delivery);
+        return true;
     }
 
     /**
@@ -73,7 +81,20 @@ public class OrderManager {
      * with no deliveries has no average and is left out.
      */
     public Map<Integer, Double> getAverageDeliveryTimeByRestaurant() {
-        throw new UnsupportedOperationException("part 2");
+        Map<Integer, Integer> totals = new LinkedHashMap<>();
+        Map<Integer, Integer> counts = new HashMap<>();
+        for (Order order : orders) {
+            for (Delivery delivery : deliveriesByOrder.getOrDefault(order.orderId, List.of())) {
+                totals.merge(order.restaurantId, delivery.getDurationMinutes(), Integer::sum);
+                counts.merge(order.restaurantId, 1, Integer::sum);
+            }
+        }
+        Map<Integer, Double> averages = new LinkedHashMap<>();
+        for (Map.Entry<Integer, Integer> entry : totals.entrySet()) {
+            int restaurantId = entry.getKey();
+            averages.put(restaurantId, (double) entry.getValue() / counts.get(restaurantId));
+        }
+        return averages;
     }
 
     /**
@@ -90,6 +111,30 @@ public class OrderManager {
      * Example: distance 2.1 km and order value 35.0: roundedKm = 3, base = 4, 50% off, fee = 2.0.
      */
     public Map<Integer, Double> getDeliveryFees() {
-        throw new UnsupportedOperationException("part 3");
+        Map<Integer, Double> fees = new LinkedHashMap<>();
+        for (Order order : orders) {
+            fees.put(order.orderId, deliveryFee(order));
+        }
+        return fees;
+    }
+
+    private static double deliveryFee(Order order) {
+        long roundedKm = (long) Math.ceil(order.distanceKm);
+        double baseFee = FIRST_KM_FEE + EXTRA_KM_FEE * (roundedKm - 1);
+        if (order.orderValue >= FREE_DELIVERY_VALUE) {
+            return 0.0;
+        }
+        if (order.orderValue >= HALF_PRICE_VALUE) {
+            return baseFee / 2; // half of 3 is 1.5, not rounded up
+        }
+        return baseFee;
+    }
+
+    private static boolean isClosed(OrderStatus status) {
+        return status == OrderStatus.DELIVERED || status == OrderStatus.CANCELED;
+    }
+
+    private Optional<Order> findOrder(int orderId) {
+        return orders.stream().filter(order -> order.orderId == orderId).findFirst();
     }
 }

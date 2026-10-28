@@ -1,6 +1,5 @@
 package com.amigoscode.karat.notifications;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("notifications drill: remove this line to begin part 1")
 class NotificationCenterTest {
 
     @Test
@@ -41,7 +39,17 @@ class NotificationCenterTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void getNotificationReturnsNullForAnUnknownId() {
+        NotificationCenter center = new NotificationCenter();
+        Notification notification = new Notification(7, 300, 12);
+        center.addNotification(notification);
+
+        assertThat(center.getNotification(7)).isSameAs(notification);
+        assertThat(center.getNotification(8)).isNull();
+        assertThat(new NotificationCenter().getOrderNotifications(300)).isEmpty();
+    }
+
+    @Test
     void addUpdates() {
         NotificationCenter center = new NotificationCenter();
         center.addNotification(new Notification(40, 100, 0));
@@ -62,7 +70,6 @@ class NotificationCenterTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void getUpdateCount() {
         NotificationCenter center = new NotificationCenter();
         center.addNotification(new Notification(40, 100, 0));
@@ -80,5 +87,26 @@ class NotificationCenterTest {
         assertThat(center.getUpdateCount(40)).isEqualTo(2);
         // Updates are kept per notification.
         assertThat(center.getUpdateCount(41)).isZero();
+    }
+
+    @Test
+    void emptyBatchStoresNothing() {
+        NotificationCenter center = new NotificationCenter();
+        center.addNotification(new Notification(40, 100, 0));
+
+        assertThat(center.addUpdates(40, List.of())).isZero();
+        assertThat(center.getUpdateCount(40)).isZero();
+    }
+
+    @Test
+    void sameTimestampWithAnotherStatusIsNotADuplicate() {
+        NotificationCenter center = new NotificationCenter();
+        center.addNotification(new Notification(40, 100, 0));
+        center.addUpdates(40, List.of(new Update(DeliveryStatus.SENT, 5)));
+
+        assertThat(center.addUpdates(40, List.of(
+                new Update(DeliveryStatus.DELIVERED, 5),
+                new Update(DeliveryStatus.SENT, 6)))).isEqualTo(2);
+        assertThat(center.getUpdateCount(40)).isEqualTo(3);
     }
 }

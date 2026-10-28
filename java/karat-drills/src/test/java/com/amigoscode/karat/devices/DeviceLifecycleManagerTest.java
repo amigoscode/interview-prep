@@ -1,6 +1,5 @@
 package com.amigoscode.karat.devices;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("devices drill: remove this line to begin part 1")
 class DeviceLifecycleManagerTest {
 
     @Test
@@ -83,7 +81,29 @@ class DeviceLifecycleManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void everyStatusCanRetireExceptRetired() {
+        for (String status : new String[] {"REGISTERED", "ACTIVE", "SUSPENDED", "MAINTENANCE_DUE"}) {
+            DeviceLifecycleManager manager = new DeviceLifecycleManager();
+            manager.devices.put("D-1", new Device("D-1", "SENSOR", "WAREHOUSE-A", status, 1, 10, 0));
+            assertThat(manager.updateDeviceStatus("D-1", "RETIRED")).isTrue();
+            assertThat(manager.devices.get("D-1").status).isEqualTo("RETIRED");
+        }
+
+        DeviceLifecycleManager manager = new DeviceLifecycleManager();
+        manager.devices.put("D-1", new Device("D-1", "SENSOR", "WAREHOUSE-A", "RETIRED", 1, 10, 0));
+        assertThat(manager.updateDeviceStatus("D-1", "RETIRED")).isFalse();
+    }
+
+    @Test
+    void nullStatusIsRejectedWithoutChangingTheDevice() {
+        DeviceLifecycleManager manager = new DeviceLifecycleManager();
+        manager.devices.put("D-1", new Device("D-1", "SENSOR", "WAREHOUSE-A", "ACTIVE", 1, 10, 0));
+
+        assertThat(manager.updateDeviceStatus("D-1", null)).isFalse();
+        assertThat(manager.devices.get("D-1").status).isEqualTo("ACTIVE");
+    }
+
+    @Test
     void registerDeviceStoresASupportedNewDevice() {
         DeviceLifecycleManager manager = new DeviceLifecycleManager();
         Device device = new Device("D-1", "SENSOR", "WAREHOUSE-A", "REGISTERED", 1, 30, 0);
@@ -97,7 +117,6 @@ class DeviceLifecycleManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void registerDeviceRejectsUnsupportedDuplicateAndNonRegisteredDevices() {
         DeviceLifecycleManager manager = new DeviceLifecycleManager();
         Device original = new Device("D-1", "SENSOR", "WAREHOUSE-A", "REGISTERED", 1, 30, 0);
@@ -117,7 +136,6 @@ class DeviceLifecycleManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void devicesDueForMaintenanceListsActiveDevicesInIdOrder() {
         DeviceLifecycleManager manager = new DeviceLifecycleManager();
         manager.devices.put("D-3", new Device("D-3", "SENSOR", "WAREHOUSE-A", "ACTIVE", 1, 10, 0));
@@ -131,7 +149,6 @@ class DeviceLifecycleManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void devicesDueForMaintenanceIsEmptyWhenNothingIsDue() {
         DeviceLifecycleManager manager = new DeviceLifecycleManager();
         assertThat(manager.getDevicesDueForMaintenance(50)).isEmpty();
@@ -139,5 +156,24 @@ class DeviceLifecycleManagerTest {
         manager.devices.put("D-1", new Device("D-1", "SENSOR", "WAREHOUSE-A", "ACTIVE", 1, 60, 0));
         manager.devices.put("D-2", new Device("D-2", "CAMERA", "WAREHOUSE-A", "RETIRED", 1, 10, 0));
         assertThat(manager.getDevicesDueForMaintenance(50)).isEmpty();
+    }
+
+    @Test
+    void deviceOnItsMaintenanceDayIsDue() {
+        DeviceLifecycleManager manager = new DeviceLifecycleManager();
+        manager.devices.put("D-1", new Device("D-1", "SENSOR", "WAREHOUSE-A", "ACTIVE", 1, 30, 0));
+
+        assertThat(manager.getDevicesDueForMaintenance(29)).isEmpty();
+        assertThat(manager.getDevicesDueForMaintenance(30)).containsExactly("D-1");
+    }
+
+    @Test
+    void registeredDeviceBecomesDueOnceActivated() {
+        DeviceLifecycleManager manager = new DeviceLifecycleManager();
+        manager.registerDevice(new Device("D-1", "SENSOR", "WAREHOUSE-A", "REGISTERED", 1, 5, 0));
+
+        assertThat(manager.getDevicesDueForMaintenance(10)).isEmpty();
+        manager.updateDeviceStatus("D-1", "ACTIVE");
+        assertThat(manager.getDevicesDueForMaintenance(10)).containsExactly("D-1");
     }
 }

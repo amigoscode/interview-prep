@@ -1,6 +1,10 @@
 package com.amigoscode.karat.notifications;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,12 +40,16 @@ public class NotificationCenter {
         return null;
     }
 
+    /** Stored updates per notification ID. A set, because a duplicate pair is never stored twice. */
+    private final Map<Integer, Set<Update>> updatesByNotification = new HashMap<>();
+
     /** Returns the IDs of all notifications for the given order, sorted in ascending order. */
     public List<Integer> getOrderNotifications(int orderId) {
         List<Integer> result = new ArrayList<>();
         for (Notification notification : notifications) {
             if (notification.getOrderId() == orderId) {
-                result.add(notification.getOrderId());
+                // Bug was adding the order ID (the thing we filtered on) instead of the notification ID.
+                result.add(notification.getNotificationId());
             }
         }
         Collections.sort(result);
@@ -55,7 +63,17 @@ public class NotificationCenter {
      * timestamp is already stored, whether from an earlier batch or earlier in the same batch.
      */
     public int addUpdates(int notificationId, List<Update> updates) {
-        throw new UnsupportedOperationException("part 2");
+        if (getNotification(notificationId) == null) {
+            return 0;
+        }
+        Set<Update> stored = updatesByNotification.computeIfAbsent(notificationId, id -> new HashSet<>());
+        int newlyStored = 0;
+        for (Update update : updates) {
+            if (stored.add(update)) {
+                newlyStored++;
+            }
+        }
+        return newlyStored;
     }
 
     /**
@@ -63,6 +81,6 @@ public class NotificationCenter {
      * if there is no such notification.
      */
     public int getUpdateCount(int notificationId) {
-        throw new UnsupportedOperationException("part 2");
+        return updatesByNotification.getOrDefault(notificationId, Set.of()).size();
     }
 }

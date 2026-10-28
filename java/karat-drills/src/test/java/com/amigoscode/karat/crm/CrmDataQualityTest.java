@@ -1,6 +1,5 @@
 package com.amigoscode.karat.crm;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("crm drill: remove this line to begin part 1")
 class CrmDataQualityTest {
 
     @Test
@@ -42,7 +40,12 @@ class CrmDataQualityTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void findByEmailOnAnEmptyEngineFindsNothing() {
+        assertThat(new DataQualityEngine().findByEmail("alice@example.com")).isEmpty();
+        assertThat(new DataQualityEngine().getRecord(1)).isNull();
+    }
+
+    @Test
     void validateRecord() {
         DataQualityEngine engine = new DataQualityEngine();
         engine.addRecord(new CustomerRecord(1, "Alice Smith", "alice@example.com", "5551234567", "New York", 10));
@@ -60,7 +63,18 @@ class CrmDataQualityTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void validateRecordRejectsNonAsciiDigitsAndNullFields() {
+        DataQualityEngine engine = new DataQualityEngine();
+        engine.addRecord(new CustomerRecord(1, "Nadia", "nadia@test.com", "١٢٣", "Cairo", 10)); // Arabic-Indic digits
+        engine.addRecord(new CustomerRecord(2, null, null, null, "Oslo", 11));
+        engine.addRecord(new CustomerRecord(3, "Sam", "sam@test.com", " 5551234567", "Perth", 12)); // leading space
+
+        assertThat(engine.validateRecord(1)).containsExactly("phone");
+        assertThat(engine.validateRecord(2)).containsExactly("email", "name", "phone");
+        assertThat(engine.validateRecord(3)).containsExactly("phone");
+    }
+
+    @Test
     void citySummary() {
         DataQualityEngine engine = new DataQualityEngine();
         engine.addRecord(new CustomerRecord(1, "Alice", "a@test.com", "1234567890", "New York", 10));
@@ -73,5 +87,15 @@ class CrmDataQualityTest {
         assertThat(engine.getCitySummary())
                 .containsExactlyInAnyOrderEntriesOf(Map.of("new york", 3, "chicago", 2, "boston", 1));
         assertThat(new DataQualityEngine().getCitySummary()).isEmpty();
+    }
+
+    @Test
+    void blankCitiesAreCountedUnderTheEmptyKey() {
+        DataQualityEngine engine = new DataQualityEngine();
+        engine.addRecord(new CustomerRecord(1, "Alice", "a@test.com", "1234567890", "", 10));
+        engine.addRecord(new CustomerRecord(2, "Bob", "b@test.com", "2345678901", "   ", 15));
+        engine.addRecord(new CustomerRecord(3, "Charlie", "c@test.com", "3456789012", "Boston", 20));
+
+        assertThat(engine.getCitySummary()).containsExactlyInAnyOrderEntriesOf(Map.of("", 2, "boston", 1));
     }
 }

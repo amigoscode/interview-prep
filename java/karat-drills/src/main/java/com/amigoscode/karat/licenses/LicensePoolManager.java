@@ -21,7 +21,8 @@ public class LicensePoolManager {
 
     /** Returns whether the license can be handed out: it is AVAILABLE and nobody is assigned to it. */
     public boolean isLicenseAvailable(License license) {
-        return license.status.equals("AVAILABLE");
+        // Bug was checking the status only, so an AVAILABLE license with a leftover user looked free.
+        return license.status.equals("AVAILABLE") && license.assignedUserId == null;
     }
 
     /**
@@ -32,7 +33,23 @@ public class LicensePoolManager {
      * to currentTime. Returns null if no license is available or the user already holds one.
      */
     public Integer checkoutLicense(String userId, Integer currentTime) {
-        throw new UnsupportedOperationException("part 2");
+        if (findHeldBy(userId) != null) {
+            return null;
+        }
+        License lowest = null;
+        for (License license : licenses.values()) {
+            if (isLicenseAvailable(license) && (lowest == null || license.licenseId < lowest.licenseId)) {
+                lowest = license;
+            }
+        }
+        if (lowest == null) {
+            return null;
+        }
+        lowest.status = "IN_USE";
+        lowest.assignedUserId = userId;
+        lowest.checkedOutAt = currentTime;
+        lowest.lastHeartbeatAt = currentTime;
+        return lowest.licenseId;
     }
 
     /**
@@ -41,6 +58,24 @@ public class LicensePoolManager {
      * returned and false if the user does not hold one.
      */
     public boolean returnLicense(String userId) {
-        throw new UnsupportedOperationException("part 2");
+        License held = findHeldBy(userId);
+        if (held == null) {
+            return false;
+        }
+        held.status = "AVAILABLE";
+        held.assignedUserId = null;
+        held.checkedOutAt = null;
+        held.lastHeartbeatAt = null;
+        return true;
+    }
+
+    /** The license the user holds (IN_USE and assigned to them), or null if they hold none. */
+    private License findHeldBy(String userId) {
+        for (License license : licenses.values()) {
+            if (license.status.equals("IN_USE") && userId.equals(license.assignedUserId)) {
+                return license;
+            }
+        }
+        return null;
     }
 }

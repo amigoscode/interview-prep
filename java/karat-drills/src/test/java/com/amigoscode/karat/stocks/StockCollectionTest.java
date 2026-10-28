@@ -1,16 +1,15 @@
 package com.amigoscode.karat.stocks;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.within;
 
 /**
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("stocks drill: remove this line to begin part 1")
 class StockCollectionTest {
 
     private static StockCollection makeStockCollection(Stock stock, Object[][] priceData) {
@@ -56,7 +55,28 @@ class StockCollectionTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void recordForAnotherStockIsRejected() {
+        StockCollection stockCollection = new StockCollection(new Stock("AAPL", "Apple Inc."));
+        PriceRecord other = new PriceRecord(new Stock("MSFT", "Microsoft"), 300, "2023-07-01");
+
+        assertThatThrownBy(() -> stockCollection.addPriceRecord(other))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThat(stockCollection.getNumPriceRecords()).isZero();
+    }
+
+    @Test
+    void singleRecordIsItsOwnMaxMinAndAverage() {
+        Stock testStock = new Stock("AAPL", "Apple Inc.");
+        StockCollection stockCollection =
+                makeStockCollection(testStock, new Object[][] {{100, "2023-07-01"}});
+
+        assertThat(stockCollection.getMaxPrice()).isEqualTo(100);
+        assertThat(stockCollection.getMinPrice()).isEqualTo(100);
+        assertThat(stockCollection.getAvgPrice()).isCloseTo(100.0, within(1e-4));
+        assertThat(stockCollection.getBiggestChange()).isNull();
+    }
+
+    @Test
     void biggestChange() {
         Stock testStock = new Stock("AAPL", "Apple Inc.");
         StockCollection stockCollection = new StockCollection(testStock);
@@ -78,5 +98,26 @@ class StockCollectionTest {
 
         assertThat(stockCollection.getBiggestChange())
                 .isEqualTo(new PriceChange(-30, "1999-12-30", "2000-01-01"));
+    }
+
+    @Test
+    void biggestChangeKeepsTheEarliestPairOnATie() {
+        Stock testStock = new Stock("AAPL", "Apple Inc.");
+        // +10 then -10: same size, the earlier rise wins
+        Object[][] priceData = {{100, "2023-07-01"}, {110, "2023-07-02"}, {100, "2023-07-03"}};
+        StockCollection stockCollection = makeStockCollection(testStock, priceData);
+
+        assertThat(stockCollection.getBiggestChange())
+                .isEqualTo(new PriceChange(10, "2023-07-01", "2023-07-02"));
+    }
+
+    @Test
+    void biggestChangeWithTwoRecordsIsTheirDifference() {
+        Stock testStock = new Stock("AAPL", "Apple Inc.");
+        Object[][] priceData = {{120, "2023-07-09"}, {100, "2023-07-02"}};
+        StockCollection stockCollection = makeStockCollection(testStock, priceData);
+
+        assertThat(stockCollection.getBiggestChange())
+                .isEqualTo(new PriceChange(20, "2023-07-02", "2023-07-09"));
     }
 }

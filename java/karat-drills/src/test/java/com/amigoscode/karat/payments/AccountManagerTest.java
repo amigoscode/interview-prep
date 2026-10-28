@@ -1,6 +1,5 @@
 package com.amigoscode.karat.payments;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("payments drill: remove this line to begin part 1")
 class AccountManagerTest {
 
     @Test
@@ -51,7 +49,26 @@ class AccountManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void accountWithNoTransactionsHasZeroBalance() {
+        AccountManager mgr = new AccountManager();
+        mgr.addAccount(new Account(1, "Alice"));
+        mgr.addTransaction(new Transaction(101, 1, TransactionType.CREDIT, 100.0, 1000));
+
+        assertThat(mgr.getBalance(99)).isZero();
+        assertThat(new AccountManager().getBalance(1)).isZero();
+    }
+
+    @Test
+    void debitOnlyAccountGoesNegative() {
+        AccountManager mgr = new AccountManager();
+        mgr.addAccount(new Account(1, "Alice"));
+        mgr.addTransaction(new Transaction(101, 1, TransactionType.DEBIT, 25.0, 1000));
+        mgr.addTransaction(new Transaction(102, 1, TransactionType.DEBIT, 5.0, 1010));
+
+        assertThat(mgr.getBalance(1)).isCloseTo(-30.0, within(1e-4));
+    }
+
+    @Test
     void averageTransactionAmountByAccount() {
         AccountManager mgr = new AccountManager();
         mgr.addAccount(new Account(1, "Alice"));
@@ -75,5 +92,26 @@ class AccountManagerTest {
         assertThat(avg.get(2)).isCloseTo(33.3333, within(1e-4));
         // Account 3 has no transactions -> should not be present
         assertThat(avg).doesNotContainKey(3);
+    }
+
+    @Test
+    void averageOfDebitsOnlyIsPositive() {
+        AccountManager mgr = new AccountManager();
+        mgr.addAccount(new Account(1, "Alice"));
+        mgr.addTransaction(new Transaction(101, 1, TransactionType.DEBIT, 30.0, 1000));
+        mgr.addTransaction(new Transaction(102, 1, TransactionType.DEBIT, 10.0, 1010));
+
+        Map<Integer, Double> avg = mgr.getAverageTransactionAmountByAccount();
+
+        assertThat(avg).containsOnlyKeys(1);
+        assertThat(avg.get(1)).isCloseTo(20.0, within(1e-4));
+    }
+
+    @Test
+    void noTransactionsGivesEmptyAverages() {
+        AccountManager mgr = new AccountManager();
+        mgr.addAccount(new Account(1, "Alice"));
+
+        assertThat(mgr.getAverageTransactionAmountByAccount()).isEmpty();
     }
 }

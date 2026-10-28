@@ -34,11 +34,14 @@ public class StockLedger {
      * outdated and is ignored; an update with the same updatedAt is applied.
      */
     public void applyInventoryUpdate(InventoryUpdate update) {
-        String key = recordKey(update.sku, update.warehouseId);
-        if (!inventoryRecords.containsKey(key)) {
+        InventoryRecord record = findRecord(update);
+        if (record == null) {
             return;
         }
-        InventoryRecord record = inventoryRecords.get(key);
+        // Bug was never comparing updatedAt, so a stale out-of-order update overwrote the record.
+        if (update.updatedAt < record.updatedAt) {
+            return;
+        }
         record.onHandQuantity = update.onHandQuantity;
         record.reservedQuantity = update.reservedQuantity;
         record.updatedAt = update.updatedAt;
@@ -46,12 +49,8 @@ public class StockLedger {
 
     /** Available stock for one SKU at one warehouse, floored at 0; 0 for an unknown pair. */
     public int getAvailableStock(String sku, int warehouseId) {
-        String key = recordKey(sku, warehouseId);
-        if (!inventoryRecords.containsKey(key)) {
-            return 0;
-        }
-        InventoryRecord record = inventoryRecords.get(key);
-        return Math.max(record.onHandQuantity - record.reservedQuantity, 0);
+        InventoryRecord record = inventoryRecords.get(recordKey(sku, warehouseId));
+        return record == null ? 0 : availableStock(record);
     }
 
     /**
@@ -60,7 +59,11 @@ public class StockLedger {
      * update refers to an unknown SKU and warehouse pair, returns null instead of a number.
      */
     public Integer previewUpdate(InventoryUpdate update) {
-        throw new UnsupportedOperationException("part 2");
+        InventoryRecord record = findRecord(update);
+        if (record == null) {
+            return null;
+        }
+        return update.onHandQuantity - record.onHandQuantity;
     }
 
     /**
@@ -68,6 +71,18 @@ public class StockLedger {
      * warehouses. A SKU whose records have no available stock still appears, with 0.
      */
     public Map<String, Integer> getAvailableStockBySku() {
-        throw new UnsupportedOperationException("part 2");
+        Map<String, Integer> totals = new HashMap<>();
+        for (InventoryRecord record : inventoryRecords.values()) {
+            totals.merge(record.sku, availableStock(record), Integer::sum);
+        }
+        return totals;
+    }
+
+    private InventoryRecord findRecord(InventoryUpdate update) {
+        return inventoryRecords.get(recordKey(update.sku, update.warehouseId));
+    }
+
+    private static int availableStock(InventoryRecord record) {
+        return Math.max(record.onHandQuantity - record.reservedQuantity, 0);
     }
 }

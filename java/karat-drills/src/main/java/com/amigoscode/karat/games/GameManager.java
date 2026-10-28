@@ -1,6 +1,7 @@
 package com.amigoscode.karat.games;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,35 +31,19 @@ public class GameManager {
      * rate: wins divided by total matches, 0.0 when the player has no matches.
      */
     public PlayerStats getPlayerStatistics(int playerId) {
-        List<MatchResult> playerMatches = new ArrayList<>();
-        for (MatchResult m : matchResults) {
-            if (m.playerId == playerId) {
-                playerMatches.add(m);
-            }
-        }
+        List<MatchResult> playerMatches = resultsFor(playerId);
 
-        int totalMatches = 0;
-        for (MatchResult m : playerMatches) {
-            if (m.outcome == Outcome.WIN
-                    || m.outcome == Outcome.LOSS
-                    || m.outcome == Outcome.DRAW) {
-                totalMatches++;
-            }
-        }
+        int totalMatches = playerMatches.size();
 
         int wins = 0;
         for (MatchResult m : playerMatches) {
-            if (m.outcome == Outcome.LOSS) {
+            // Bug was counting LOSS results as wins; a win is an outcome of WIN.
+            if (m.outcome == Outcome.WIN) {
                 wins++;
             }
         }
 
-        double winRate;
-        if (totalMatches > 0) {
-            winRate = (double) wins / totalMatches;
-        } else {
-            winRate = 0.0;
-        }
+        double winRate = totalMatches > 0 ? (double) wins / totalMatches : 0.0;
         return new PlayerStats(totalMatches, wins, winRate);
     }
 
@@ -67,7 +52,10 @@ public class GameManager {
      * known player, the match result is ignored.
      */
     public void addMatchResult(MatchResult matchResult) {
-        throw new UnsupportedOperationException("part 2");
+        if (!players.containsKey(matchResult.playerId)) {
+            return;
+        }
+        matchResults.add(matchResult);
     }
 
     /**
@@ -76,6 +64,27 @@ public class GameManager {
      * the player has no match results at all, returns an empty map.
      */
     public Map<Outcome, Double> getAverageScoreByOutcome(int playerId) {
-        throw new UnsupportedOperationException("part 2");
+        Map<Outcome, Integer> counts = new EnumMap<>(Outcome.class);
+        Map<Outcome, Integer> sums = new EnumMap<>(Outcome.class);
+        for (MatchResult m : resultsFor(playerId)) {
+            counts.merge(m.outcome, 1, Integer::sum);
+            sums.merge(m.outcome, m.score, Integer::sum);
+        }
+
+        Map<Outcome, Double> averages = new EnumMap<>(Outcome.class);
+        for (Outcome outcome : counts.keySet()) {
+            averages.put(outcome, (double) sums.get(outcome) / counts.get(outcome));
+        }
+        return averages;
+    }
+
+    private List<MatchResult> resultsFor(int playerId) {
+        List<MatchResult> playerMatches = new ArrayList<>();
+        for (MatchResult m : matchResults) {
+            if (m.playerId == playerId) {
+                playerMatches.add(m);
+            }
+        }
+        return playerMatches;
     }
 }

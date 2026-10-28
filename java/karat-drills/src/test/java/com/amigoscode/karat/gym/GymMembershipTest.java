@@ -1,6 +1,5 @@
 package com.amigoscode.karat.gym;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("gym drill: remove this line to begin part 1")
 class GymMembershipTest {
 
     @Test
@@ -49,7 +47,25 @@ class GymMembershipTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void emptyGymHasZeroConversionRate() {
+        MembershipStatistics stats = new Membership().getMembershipStatistics();
+
+        assertThat(stats.totalMembers).isZero();
+        assertThat(stats.totalPaidMembers).isZero();
+        assertThat(stats.conversionRate).isZero();
+    }
+
+    @Test
+    void updatingAnUnknownMemberChangesNothing() {
+        Membership membership = new Membership();
+        membership.addMember(new Member(1, "John Doe", MembershipStatus.BRONZE));
+
+        membership.updateMembership(99, MembershipStatus.GOLD);
+
+        assertThat(membership.members.get(0).membershipStatus).isEqualTo(MembershipStatus.BRONZE);
+    }
+
+    @Test
     void averageWorkoutDurations() {
         Membership membership = new Membership();
         membership.addMember(new Member(12, "John Doe", MembershipStatus.SILVER));
@@ -75,7 +91,17 @@ class GymMembershipTest {
     }
 
     @Test
-    @Disabled("part 3: remove this line when part 2 is green")
+    void memberWithNoWorkoutsHasNoAverage() {
+        Membership membership = new Membership();
+        membership.addMember(new Member(12, "John Doe", MembershipStatus.SILVER));
+        membership.addMember(new Member(37, "George Costanza", MembershipStatus.SILVER));
+        membership.addWorkout(12, new Workout(11, 10, 20));
+
+        assertThat(membership.getAverageWorkoutDurations()).containsOnlyKeys(12);
+        assertThat(new Membership().getAverageWorkoutDurations()).isEmpty();
+    }
+
+    @Test
     void totalMonthlyRevenue() {
         Membership membership = new Membership();
         membership.addMember(new Member(1, "John Doe", MembershipStatus.BRONZE));

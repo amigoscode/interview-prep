@@ -1,18 +1,18 @@
 package com.amigoscode.karat.snippets;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Five snippets from the theory half of the interview. Every test fails until its snippet is fixed. */
-@Disabled("snippets drill: remove this line to begin")
 class SnippetsTest {
 
     @Test
@@ -44,6 +44,13 @@ class SnippetsTest {
     }
 
     @Test
+    void wordsOfEqualLengthKeepTheirOrder() {
+        assertThat(WordSorter.sortedByLength(List.of("bb", "aa", "c", "dd")))
+                .containsExactly("c", "bb", "aa", "dd");
+        assertThat(WordSorter.sortedByLength(List.of())).isEmpty();
+    }
+
+    @Test
     void renamedUserIsStillFoundInTheDirectory() {
         UserDirectory directory = new UserDirectory();
         directory.add(new User("alice"));
@@ -53,6 +60,24 @@ class SnippetsTest {
         assertThat(directory.contains("bob")).isTrue();
         assertThat(directory.contains("alice")).isFalse();
         assertThat(directory.size()).isEqualTo(1);
+    }
+
+    @Test
+    void renamingAnUnknownUserChangesNothing() {
+        UserDirectory directory = new UserDirectory();
+        directory.add(new User("alice"));
+
+        assertThat(directory.rename("carol", "bob")).isFalse();
+        assertThat(directory.contains("alice")).isTrue();
+        assertThat(directory.size()).isEqualTo(1);
+    }
+
+    @Test
+    void userIsAValueObject() {
+        Set<User> users = new HashSet<>(List.of(new User("alice"), new User("alice")));
+
+        assertThat(users).hasSize(1);
+        assertThat(new User("alice").withUsername("bob")).isEqualTo(new User("bob"));
     }
 
     @Test

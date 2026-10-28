@@ -1,6 +1,8 @@
 package com.amigoscode.karat.alerts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,11 +38,15 @@ public class AlertRouter {
         return null;
     }
 
+    /** Delivery attempts per alert ID, so {@link Alert} stays a plain data holder. */
+    private final Map<Integer, List<DeliveryAttempt>> attemptsByAlert = new HashMap<>();
+
     /** Returns whether the given service currently has at least one open alert. */
     public boolean hasOpenAlert(String service) {
         for (Alert alert : alerts) {
-            if (alert.service.equals(service)) {
-                return alert.resolvedAt == null;
+            // Bug was returning on the first alert of the service, so a later open alert was never seen.
+            if (alert.service.equals(service) && alert.resolvedAt == null) {
+                return true;
             }
         }
         return false;
@@ -52,7 +58,11 @@ public class AlertRouter {
      * attempts, and the same responder can be recorded any number of times.
      */
     public boolean recordAttempt(int alertId, DeliveryAttempt attempt) {
-        throw new UnsupportedOperationException("part 2");
+        if (getAlert(alertId) == null) {
+            return false;
+        }
+        attemptsByAlert.computeIfAbsent(alertId, id -> new ArrayList<>()).add(attempt);
+        return true;
     }
 
     /**
@@ -60,6 +70,13 @@ public class AlertRouter {
      * alerts with at least one attempt appear; alerts with none are omitted.
      */
     public Map<Integer, Integer> getAttemptCounts() {
-        throw new UnsupportedOperationException("part 2");
+        Map<Integer, Integer> counts = new LinkedHashMap<>();
+        for (Alert alert : alerts) {
+            List<DeliveryAttempt> attempts = attemptsByAlert.getOrDefault(alert.alertId, List.of());
+            if (!attempts.isEmpty()) {
+                counts.put(alert.alertId, attempts.size());
+            }
+        }
+        return counts;
     }
 }

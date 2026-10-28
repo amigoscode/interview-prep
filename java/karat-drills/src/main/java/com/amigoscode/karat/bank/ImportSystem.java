@@ -2,6 +2,7 @@ package com.amigoscode.karat.bank;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,9 @@ import java.util.Map;
  * <p>Part 2: as transactions are imported the system must keep each account's running balance in
  * {@link #balances}, and report activity broken down by transaction type. Change
  * {@link #addTransaction} and implement {@link #getTypeSummary}.
+ *
+ * <p>Amounts are doubles because the provided tests use them; in production money would be long
+ * cents or BigDecimal so that sums are exact.
  */
 public class ImportSystem {
 
@@ -39,6 +43,7 @@ public class ImportSystem {
      */
     public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
+        balances.merge(transaction.accountId, signedAmount(transaction), Double::sum);
     }
 
     /**
@@ -55,12 +60,9 @@ public class ImportSystem {
                 continue;
             }
             transactionCount++;
-            if (t.transactionType == TransactionType.DEPOSIT
-                    || t.transactionType == TransactionType.INTEREST
-                    || t.transactionType == TransactionType.TRANSFER) {
+            if (isCredit(t.transactionType)) {
                 totalCredits += t.amount;
-            } else if (t.transactionType == TransactionType.WITHDRAWAL
-                    || t.transactionType == TransactionType.FEE) {
+            } else {
                 totalDebits += t.amount;
             }
         }
@@ -81,6 +83,30 @@ public class ImportSystem {
      * transaction are included; types with none are omitted.
      */
     public Map<String, Map<String, Object>> getTypeSummary() {
-        throw new UnsupportedOperationException("part 2");
+        Map<String, Integer> countByType = new LinkedHashMap<>();
+        Map<String, Double> totalByType = new LinkedHashMap<>();
+        for (Transaction t : transactions) {
+            String type = t.transactionType.name();
+            countByType.merge(type, 1, Integer::sum);
+            totalByType.merge(type, t.amount, Double::sum);
+        }
+        Map<String, Map<String, Object>> summary = new LinkedHashMap<>();
+        for (String type : countByType.keySet()) {
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("count", countByType.get(type));
+            entry.put("total_amount", totalByType.get(type));
+            summary.put(type, entry);
+        }
+        return summary;
+    }
+
+    /** The amount as a signed movement of the balance: positive for a credit, negative for a debit. */
+    private static double signedAmount(Transaction transaction) {
+        return isCredit(transaction.transactionType) ? transaction.amount : -transaction.amount;
+    }
+
+    private static boolean isCredit(TransactionType type) {
+        // Bug was TRANSFER counted as a credit: a transfer is money leaving the account, a debit.
+        return type == TransactionType.DEPOSIT || type == TransactionType.INTEREST;
     }
 }

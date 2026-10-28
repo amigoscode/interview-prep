@@ -1,6 +1,5 @@
 package com.amigoscode.karat.fooddelivery;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("fooddelivery drill: remove this line to begin part 1")
 class OrderManagerTest {
 
     @Test
@@ -32,7 +30,28 @@ class OrderManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
+    void emptyManagerHasZeroStatistics() {
+        OrderStats stats = new OrderManager().getOrderStatistics();
+
+        assertThat(stats.totalOrders).isZero();
+        assertThat(stats.activeOrders).isZero();
+        assertThat(stats.closedOrders).isZero();
+    }
+
+    @Test
+    void updatingStatusMovesAnOrderFromActiveToClosed() {
+        OrderManager om = new OrderManager();
+        om.addOrder(new Order(1, 10, 100, 25.0, 3.2, OrderStatus.OUT_FOR_DELIVERY));
+
+        om.updateOrderStatus(1, OrderStatus.DELIVERED);
+        om.updateOrderStatus(999, OrderStatus.CANCELED); // unknown order: ignored
+
+        OrderStats stats = om.getOrderStatistics();
+        assertThat(stats.activeOrders).isZero();
+        assertThat(stats.closedOrders).isEqualTo(1);
+    }
+
+    @Test
     void addDelivery() {
         OrderManager om = new OrderManager();
         om.addOrder(new Order(1, 10, 100, 25.0, 3.2, OrderStatus.DELIVERED));
@@ -46,7 +65,6 @@ class OrderManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void averageDeliveryTimeByRestaurant() {
         OrderManager om = new OrderManager();
         om.addOrder(new Order(1, 10, 100, 25.0, 3.2, OrderStatus.DELIVERED));
@@ -66,7 +84,17 @@ class OrderManagerTest {
     }
 
     @Test
-    @Disabled("part 3: remove this line when part 2 is green")
+    void restaurantWithoutDeliveriesHasNoAverage() {
+        OrderManager om = new OrderManager();
+        om.addOrder(new Order(1, 10, 100, 25.0, 3.2, OrderStatus.DELIVERED));
+        om.addOrder(new Order(2, 11, 101, 55.0, 1.4, OrderStatus.PLACED));
+        om.addDelivery(1, new Delivery(101, 10, 40));
+
+        assertThat(om.getAverageDeliveryTimeByRestaurant()).containsOnlyKeys(10);
+        assertThat(new OrderManager().getAverageDeliveryTimeByRestaurant()).isEmpty();
+    }
+
+    @Test
     void deliveryFees() {
         OrderManager om = new OrderManager();
         om.addOrder(new Order(1, 10, 100, 25.0, 1.0, OrderStatus.PLACED));
@@ -80,5 +108,20 @@ class OrderManagerTest {
         assertThat(fees.get(2)).isCloseTo(2.0, within(1e-4));
         assertThat(fees.get(3)).isCloseTo(0.0, within(1e-4));
         assertThat(fees.get(4)).isCloseTo(3.0, within(1e-4));
+    }
+
+    @Test
+    void halvedFeeIsNotRoundedUp() {
+        OrderManager om = new OrderManager();
+        // 2.0 km rounds to 2, base 3, value exactly 30 is half price: 1.5, not 2
+        om.addOrder(new Order(1, 10, 100, 30.0, 2.0, OrderStatus.PLACED));
+        // value exactly 50 is free
+        om.addOrder(new Order(2, 10, 101, 50.0, 7.5, OrderStatus.PLACED));
+
+        Map<Integer, Double> fees = om.getDeliveryFees();
+
+        assertThat(fees.get(1)).isCloseTo(1.5, within(1e-4));
+        assertThat(fees.get(2)).isCloseTo(0.0, within(1e-4));
+        assertThat(new OrderManager().getDeliveryFees()).isEmpty();
     }
 }

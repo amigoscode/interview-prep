@@ -1,6 +1,5 @@
 package com.amigoscode.karat.games;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import static org.assertj.core.api.Assertions.within;
  * This is not a complete test suite, but tests some basic functionality of the code and shows how
  * to use it. One test fails on purpose: that is part 1.
  */
-@Disabled("games drill: remove this line to begin part 1")
 class GameManagerTest {
 
     @Test
@@ -41,7 +39,6 @@ class GameManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void testAddMatchResult() {
         GameManager gm = new GameManager();
         gm.addPlayer(new Player(1, "player1"));
@@ -55,7 +52,6 @@ class GameManagerTest {
     }
 
     @Test
-    @Disabled("part 2: remove this line when part 1 is green")
     void testGetAverageScoreByOutcome() {
         GameManager gm = new GameManager();
         gm.addPlayer(new Player(1, "player1"));
@@ -80,5 +76,38 @@ class GameManagerTest {
 
         gm.addPlayer(new Player(3, "player3"));
         assertThat(gm.getAverageScoreByOutcome(3)).isEmpty();
+    }
+
+    @Test
+    void playerWithNoMatchesHasZeroStatistics() {
+        GameManager gm = new GameManager();
+        gm.addPlayer(new Player(1, "player1"));
+
+        PlayerStats stats = gm.getPlayerStatistics(1);
+        assertThat(stats.totalMatches).isZero();
+        assertThat(stats.wins).isZero();
+        assertThat(stats.winRate).isZero();
+    }
+
+    @Test
+    void averageScoreForUnknownPlayerIsEmpty() {
+        GameManager gm = new GameManager();
+        gm.addPlayer(new Player(1, "player1"));
+        gm.addMatchResult(new MatchResult(1, 2, Outcome.WIN, 80, 1000));
+
+        assertThat(gm.getAverageScoreByOutcome(42)).isEmpty();
+    }
+
+    @Test
+    void averageScoreOnlyCountsThatPlayersResults() {
+        GameManager gm = new GameManager();
+        gm.addPlayer(new Player(1, "player1"));
+        gm.addPlayer(new Player(2, "player2"));
+        gm.addMatchResult(new MatchResult(1, 2, Outcome.WIN, 80, 1000));
+        gm.addMatchResult(new MatchResult(2, 1, Outcome.WIN, 100, 1000));
+
+        Map<Outcome, Double> avg1 = gm.getAverageScoreByOutcome(1);
+        assertThat(avg1).containsOnlyKeys(Outcome.WIN);
+        assertThat(avg1.get(Outcome.WIN)).isCloseTo(80.0, within(1e-4));
     }
 }
