@@ -177,6 +177,6 @@ make read-add-write one step.
 
 **Where it stops.** All of this protects one object in one JVM. Run two instances of the
 application and each has its own counter. State that must be right across instances lives in the
-database or in Redis: see the [Locking](../locking/) project.
+database or in Redis: see the [Locking](../07-locking/) project.
 
 </details>

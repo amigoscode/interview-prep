@@ -14,7 +14,7 @@ Commands are for macOS and Linux. On Windows type `.\demo`, `.\inspect` and `.\c
 
 **Rules:** work in `start/`. Never edit, delete or disable a test. All your changes go in
 `src/main/java/com/amigoscode/sqltraps/shop/ShopQueries.java`. Do not add an index: none of these
-problems needs one, and indexes have [their own project](../indexes/).
+problems needs one, and indexes have [their own project](../03-indexes/).
 
 **Part A (Tasks 1 to 6)** runs on the small shop: 8 customers and 12 orders, all written out in
 `src/main/resources/seed-small.sql`. Read that file first. **Part B (Tasks 7 to 10)** runs on the
@@ -382,7 +382,7 @@ Answer out loud, in full sentences, before reading the answer in brackets.
   top N in memory instead of sorting the whole result, which may otherwise spill to disk.)
 - "SQL select with indexes": how does an index help a `SELECT`? (It lets Postgres find the rows
   that match a `WHERE`, a join or an `ORDER BY` without reading the whole table. That is the
-  [Indexes](../indexes/) project: B-tree, composite, partial, covering, and why an index is
+  [Indexes](../03-indexes/) project: B-tree, composite, partial, covering, and why an index is
   sometimes not used.)
 - What is a CTE, and what is a window function? (A CTE, `WITH name AS (SELECT ...)`, names a
   subquery so the main query reads top to bottom. The "aggregate before joining" subquery of Task 5

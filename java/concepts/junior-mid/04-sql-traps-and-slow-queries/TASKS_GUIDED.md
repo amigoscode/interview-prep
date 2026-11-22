@@ -22,7 +22,7 @@ docker compose up -d
 - `./inspect "SELECT ..."` runs any read-only SELECT (in double quotes) and shows its rows, its
   plan and the facts pulled out of the plan. It runs against the shop `./demo` loaded last.
 - Plans are taken with parallel query and JIT switched off, so your plan looks like the one here.
-- How to read `EXPLAIN ANALYZE` line by line is Task 1 of [Indexes](../indexes/TASKS_GUIDED.md).
+- How to read `EXPLAIN ANALYZE` line by line is Task 1 of [Indexes](../03-indexes/TASKS_GUIDED.md).
   Here every plan comes with a "WHAT STANDS OUT" block that names the facts you need.
 
 ---
@@ -651,7 +651,7 @@ Two comparisons, every time:
 ### Step 5: choose a fix
 
 There are four kinds of fix: rewrite the query, fetch less (Task 8), fix the statistics (Task 9),
-or add an index ([Indexes](../indexes/)). What you found decides which. Here the same work is done
+or add an index ([Indexes](../03-indexes/)). What you found decides which. Here the same work is done
 once per row, so the fix is a **rewrite** that does it once. An index on `orders (customer_id)`
 would make each of the 100 lookups cheap, and would hide the real problem until someone runs the
 report for a country with 3,000 customers. Fix the query first.
@@ -995,7 +995,7 @@ first queries run on the old statistics. A migration that loads data should end 
 | The result is far bigger than what is shown | Fetch less: name the columns, `LIMIT`, cap the page size | Task 8: 70.3 MB became 973 bytes |
 | Estimated rows far from actual rows | `ANALYZE`, and find out why autovacuum did not do it | Task 9: Nested Loop became Hash Join |
 | A sort that spills to disk | Fetch less (`LIMIT`, fewer columns), or an index in that order | Task 9 step 3 |
-| A big table read to return a few rows, and the query is already as simple as it gets | An index | Task 9, query A: [Indexes](../indexes/) |
+| A big table read to return a few rows, and the query is already as simple as it gets | An index | Task 9, query A: [Indexes](../03-indexes/) |
 
 **Step 3 of the task.** Query A (`WHERE customer_id = ?`, 3 rows returned, 300,012 read) is the
 case for an index: `CREATE INDEX ON orders (customer_id)`. You prove it with `EXPLAIN ANALYZE`

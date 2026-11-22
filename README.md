@@ -62,8 +62,8 @@ A collection of hands-on coding interview projects organized by language. Each p
 > **Backend concepts:** [java/concepts/](java/concepts/) is a different kind of project: not a timed
 > round, but one concept taught step by step. Each is broken first (you run it and watch the problem
 > happen), has challenge tasks and a guided version, tests as acceptance criteria, and `start/` and
-> `solution/` folders side by side. The first one is
-> [Locking](java/concepts/junior-mid/locking/): optimistic vs pessimistic, on Spring Boot 4 and Postgres.
+> `solution/` folders side by side. There are eight so far, numbered in the suggested order from
+> `01-transactional` to `08-idempotency`: see the [list](java/concepts/README.md).
 
 ## Structure
 
@@ -91,7 +91,7 @@ interview-prep/
 │   ├── karat-drills/
 │   ├── secret-storage/
 │   ├── concepts/
-│   │   └── junior-mid/
+│   │   └── junior-mid/          (01-transactional ... 08-idempotency)
 │   ├── DELIVERY_HERO.md
 │   └── KARAT.md
 ├── python/
