@@ -31,6 +31,7 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Event Registration](java/event-registration/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Fix the Service](java/fix-the-service/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Karat Drills](java/karat-drills/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Secret Storage](java/secret-storage/) | Spring Boot 4, Java 25, Docker | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
@@ -42,6 +43,10 @@ A collection of hands-on coding interview projects organized by language. Each p
 > is a standalone plain-Java project with a compiling skeleton on `main` and a complete, tested
 > solution on `solutions/<project>`, for example `solutions/ledger`.
 
+> **Secret Storage** is a take-home security case followed by a 15-minute presentation and Q&A. The
+> code change is small; the assessment is the reasoning about local development, CI/CD and
+> production. A reference fix and write-up are on `solutions/secret-storage`.
+>
 > **Delivery Hero prep:** String Drills, Array Drills, Data Structure Drills, Order Tracking, Order API,
 > Rider Dispatch and Fix the Service practise the questions reported in Delivery Hero's technical round (and
 > at its brands Glovo, talabat and foodpanda). They use the same live-coding format, with solutions on
@@ -84,9 +89,9 @@ interview-prep/
 │   ├── event-registration/
 │   ├── fix-the-service/
 │   ├── karat-drills/
+│   ├── secret-storage/
 │   ├── concepts/
 │   │   └── junior-mid/
-│   │       └── locking/
 │   ├── DELIVERY_HERO.md
 │   └── KARAT.md
 ├── python/
