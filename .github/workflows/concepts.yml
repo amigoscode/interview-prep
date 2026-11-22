@@ -1,0 +1,105 @@
+name: Backend concepts
+
+# Every project under java/concepts is broken on purpose in start/ and fixed in solution/.
+# This workflow proves both halves still hold, so the READMEs and guides stay true.
+
+on:
+  pull_request:
+    paths:
+      - "java/concepts/**"
+      - ".github/workflows/concepts.yml"
+      - ".github/scripts/verify-concept.sh"
+  push:
+    branches: [main]
+    paths:
+      - "java/concepts/**"
+      - ".github/workflows/concepts.yml"
+      - ".github/scripts/verify-concept.sh"
+  workflow_dispatch:
+
+concurrency:
+  group: concepts-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    name: List projects
+    runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.read.outputs.projects }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: read
+        run: echo "projects=$(jq -c . java/concepts/ci-projects.json)" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: ${{ matrix.project.path }}
+    needs: list
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJson(needs.list.outputs.projects) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      # start/ must fail with the documented count; solution/ must pass everything.
+      - name: Verify start/ and solution/
+        run: >
+          .github/scripts/verify-concept.sh
+          "${{ matrix.project.path }}"
+          "${{ matrix.project.startPass }}"
+          "${{ matrix.project.total }}"
+
+  windows-launchers:
+    name: Windows launchers
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: maven
+      # Hosted Windows runners cannot run the Postgres containers, so this checks what it can:
+      # every project's demo.cmd compiles the project and passes its arguments through.
+      - name: demo.cmd --help in every project
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem java/concepts -Recurse -Filter demo.cmd | Where-Object { $_.Directory.Name -eq 'solution' } | ForEach-Object {
+            Write-Host "== $($_.FullName)"
+            $output = & $_.FullName --help 2>&1 | Out-String
+            if ($LASTEXITCODE -ne 0 -or $output -notmatch 'Usage') {
+              Write-Host $output
+              Write-Host "FAILED (exit code $LASTEXITCODE)"
+              $failed = $true
+            } else {
+              Write-Host "ok"
+            }
+          }
+          if ($failed) { exit 1 }
+      # Thread safety needs no database, so its whole checker can run on Windows.
+      - name: check.cmd on thread-safety/solution (all pass)
+        shell: pwsh
+        run: |
+          $output = & java/concepts/junior-mid/06-thread-safety/solution/check.cmd 2>&1 | Out-String
+          Write-Host $output
+          if ($LASTEXITCODE -ne 0) { Write-Host "FAILED: expected exit code 0, got $LASTEXITCODE"; exit 1 }
+          if ($output -match '\[FAIL\]') { Write-Host "FAILED: a check failed"; exit 1 }
+      - name: check.cmd on thread-safety/start (fails on purpose)
+        shell: pwsh
+        run: |
+          $output = & java/concepts/junior-mid/06-thread-safety/start/check.cmd 2>&1 | Out-String
+          Write-Host $output
+          if ($LASTEXITCODE -eq 0) { Write-Host "FAILED: start/ must not pass"; exit 1 }
+          exit 0

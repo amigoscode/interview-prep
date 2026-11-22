@@ -43,7 +43,7 @@ create table if not exists order_items (
 
 alter table orders alter column status set statistics 2000;
 
--- The only index besides the primary keys. Indexes have their own project (../indexes):
+-- The only index besides the primary keys. Indexes have their own project (../03-indexes):
 -- do not add any here.
 create index if not exists idx_orders_created_at on orders (created_at);
 

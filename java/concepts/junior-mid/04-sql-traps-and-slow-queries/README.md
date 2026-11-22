@@ -22,7 +22,7 @@ every answer by reading the rows.
 
 **Part B (Tasks 7 to 10): right rows, slowly.** A method you can repeat, on a shop with 300,000
 orders. None of the fixes in this project is an index: you rewrite the query, fetch less, or fix
-the statistics. Indexes have their own project, [Indexes](../indexes/), which also teaches how to
+the statistics. Indexes have their own project, [Indexes](../03-indexes/), which also teaches how to
 read `EXPLAIN ANALYZE` line by line. Do that one first if a query plan is new to you.
 
 ## Tech Stack

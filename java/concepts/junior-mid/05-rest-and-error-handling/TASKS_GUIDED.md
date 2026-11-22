@@ -1997,7 +1997,7 @@ two surprises. If your clients retry deletes automatically, 204 is a fair choice
 
 To make `POST /api/orders` safe to repeat, the client sends an `Idempotency-Key` header and the
 server remembers which keys it has already handled. That is its own project:
-[`../idempotency`](../idempotency/).
+[`../08-idempotency`](../08-idempotency/).
 
 ### Step 7: changing the API later
 

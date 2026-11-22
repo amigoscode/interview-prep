@@ -119,7 +119,7 @@ threads really do run them at the same instant.
 | 5 | | writes **42** | 42 |
 
 Two visits, and the counter went up by one. This is a **lost update**. It is the same anomaly as in
-the [Locking](../locking/) project, with a field in memory instead of a row in a database.
+the [Locking](../07-locking/) project, with a field in memory instead of a row in a database.
 
 ### Why nothing failed
 
@@ -1547,7 +1547,7 @@ and a lock in one JVM cannot make a thread in another JVM wait. Everything in th
 State that must be correct across instances has to live outside them: in the database, or in
 Redis. And there the same race comes back, between two instances instead of two threads, and you
 fix it with the database's tools: an atomic `UPDATE ... SET count = count + 1`, a row lock, a
-version column. That is the [Locking](../locking/) project.
+version column. That is the [Locking](../07-locking/) project.
 
 The in-memory techniques are still the right answer for state that is allowed to be per-instance:
 a local cache, metrics, rate counters that only need to be roughly right.
