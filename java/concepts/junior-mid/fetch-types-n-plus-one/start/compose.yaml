@@ -1,0 +1,18 @@
+# The name keeps this project apart from other compose projects that also live in a folder called
+# "start" or "solution". Without it, Docker Compose treats them all as one project.
+name: fetching
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: fetching-postgres
+    environment:
+      POSTGRES_DB: fetching
+      POSTGRES_USER: fetching
+      POSTGRES_PASSWORD: fetching
+    ports:
+      - "5443:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fetching -d fetching"]
+      interval: 2s
+      timeout: 2s
+      retries: 20

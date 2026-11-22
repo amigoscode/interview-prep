@@ -54,6 +54,12 @@ A collection of hands-on coding interview projects organized by language. Each p
 > `solutions/karat-drills`. The theory half of the screen, every question answered, is in
 > [java/KARAT.md](java/KARAT.md).
 
+> **Backend concepts:** [java/concepts/](java/concepts/) is a different kind of project: not a timed
+> round, but one concept taught step by step. Each is broken first (you run it and watch the problem
+> happen), has challenge tasks and a guided version, tests as acceptance criteria, and `start/` and
+> `solution/` folders side by side. The first one is
+> [Locking](java/concepts/junior-mid/locking/): optimistic vs pessimistic, on Spring Boot 4 and Postgres.
+
 ## Structure
 
 ```
@@ -78,6 +84,9 @@ interview-prep/
 │   ├── event-registration/
 │   ├── fix-the-service/
 │   ├── karat-drills/
+│   ├── concepts/
+│   │   └── junior-mid/
+│   │       └── locking/
 │   ├── DELIVERY_HERO.md
 │   └── KARAT.md
 ├── python/

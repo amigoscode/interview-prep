@@ -1,0 +1,13 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{30} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <!-- Quiet on purpose: ./check prints one line per acceptance criterion. Set to INFO to debug. -->
+    <!-- The handler for unexpected errors logs a full stack trace. Set to ERROR to see it. -->
+    <logger name="com.amigoscode.restapi.ApiExceptionHandler" level="OFF"/>
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

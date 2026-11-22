@@ -1,0 +1,12 @@
+package com.amigoscode.sqltraps;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SqlTrapsApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SqlTrapsApplication.class, args);
+    }
+}

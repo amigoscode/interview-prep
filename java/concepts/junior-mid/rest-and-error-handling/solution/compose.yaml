@@ -1,0 +1,19 @@
+# The project name keeps this container apart from the other concept projects, which also have
+# a start/ and a solution/ folder. start/ and solution/ share this one database.
+name: restapi
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: restapi-postgres
+    environment:
+      POSTGRES_DB: orders
+      POSTGRES_USER: orders
+      POSTGRES_PASSWORD: orders
+    ports:
+      - "5446:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orders -d orders"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
