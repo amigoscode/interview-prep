@@ -1,0 +1,4 @@
+#!/bin/sh
+# Runs on macOS and Linux. On Windows use demo.cmd (type: .\demo).
+cd "$(dirname "$0")" || exit 1
+exec ./mvnw -q compile exec:java -Dexec.mainClass=com.amigoscode.indexes.demo.Demo -Dexec.args="$*"
