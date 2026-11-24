@@ -1,0 +1,6 @@
+# Optional. A single Kafka broker on localhost:9092 for the events and the settlement listener.
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+    ports:
+      - "9092:9092"
