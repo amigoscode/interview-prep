@@ -31,6 +31,8 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Event Registration](java/event-registration/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Fix the Service](java/fix-the-service/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Karat Drills](java/karat-drills/) | Plain Java 21, JUnit 5 | Done |
+| Java | [Secret Storage](java/secret-storage/) | Spring Boot 4, Java 25, Docker | Done |
+| Java | [Payment Transaction Review](java/payment-transaction-review/) | Spring Boot 3.5, Java 25, Gradle, JPA, Flyway, Kafka, JWT | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
@@ -42,17 +44,32 @@ A collection of hands-on coding interview projects organized by language. Each p
 > is a standalone plain-Java project with a compiling skeleton on `main` and a complete, tested
 > solution on `solutions/<project>`, for example `solutions/ledger`.
 
+> **Secret Storage** is a take-home security case followed by a 15-minute presentation and Q&A. The
+> code change is small; the assessment is the reasoning about local development, CI/CD and
+> production. A reference fix and write-up are on `solutions/secret-storage`.
+>
 > **Delivery Hero prep:** String Drills, Array Drills, Data Structure Drills, Order Tracking, Order API,
 > Rider Dispatch and Fix the Service practise the questions reported in Delivery Hero's technical round (and
 > at its brands Glovo, talabat and foodpanda). They use the same live-coding format, with solutions on
 > `solutions/<project>`. **Fix the Service** starts with 4 failing tests on purpose. See
 > [java/DELIVERY_HERO.md](java/DELIVERY_HERO.md) for every question mapped to its exercise.
 
+> **Payment Transaction Review** is a live code review in the style of payments companies' senior
+> backend rounds: a runnable transaction API with 36 planted defects (security, money, concurrency,
+> transactions, Kafka) to review out loud as a colleague's pull request, then one fix and one
+> extension. The run sheet, ranked answer key and scorecard are in its `INTERVIEW_TASKS.md`.
+
 > **Karat prep:** **Karat Drills** rebuilds 19 real Karat coding questions (Java + React skillset, 2026
 > question bank) as one package each: a small back-office system with one failing test to fix, then two
 > functions to add against a spec with the tests provided, like the real screen. Solutions on
 > `solutions/karat-drills`. The theory half of the screen, every question answered, is in
 > [java/KARAT.md](java/KARAT.md).
+
+> **Backend concepts:** [java/concepts/](java/concepts/) is a different kind of project: not a timed
+> round, but one concept taught step by step. Each is broken first (you run it and watch the problem
+> happen), has challenge tasks and a guided version, tests as acceptance criteria, and `start/` and
+> `solution/` folders side by side. There are eleven so far, numbered in the suggested order from
+> `01-transactional` to `11-pagination`: see the [list](java/concepts/README.md).
 
 ## Structure
 
@@ -78,6 +95,9 @@ interview-prep/
 │   ├── event-registration/
 │   ├── fix-the-service/
 │   ├── karat-drills/
+│   ├── secret-storage/
+│   ├── concepts/
+│   │   └── junior-mid/          (01-transactional ... 11-pagination)
 │   ├── DELIVERY_HERO.md
 │   └── KARAT.md
 ├── python/

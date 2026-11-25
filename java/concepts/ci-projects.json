@@ -1,0 +1,13 @@
+[
+  { "path": "java/concepts/junior-mid/01-transactional",              "startPass": 22, "total": 32 },
+  { "path": "java/concepts/junior-mid/02-fetch-types-n-plus-one",     "startPass": 12, "total": 24 },
+  { "path": "java/concepts/junior-mid/03-indexes",                    "startPass": 11, "total": 25 },
+  { "path": "java/concepts/junior-mid/04-sql-traps-and-slow-queries", "startPass": 17, "total": 33 },
+  { "path": "java/concepts/junior-mid/05-rest-and-error-handling",    "startPass": 13, "total": 56 },
+  { "path": "java/concepts/junior-mid/06-thread-safety",              "startPass": 18, "total": 29 },
+  { "path": "java/concepts/junior-mid/07-locking",                    "startPass": 7,  "total": 18 },
+  { "path": "java/concepts/junior-mid/08-idempotency",                "startPass": 15, "total": 32 },
+  { "path": "java/concepts/junior-mid/09-isolation-levels",          "startPass": 22, "total": 31 },
+  { "path": "java/concepts/junior-mid/10-constraints-and-races",     "startPass": 19, "total": 35 },
+  { "path": "java/concepts/junior-mid/11-pagination",               "startPass": 15, "total": 35 }
+]

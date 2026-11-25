@@ -1,0 +1,46 @@
+@host = http://localhost:8081
+@merchantA = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwcmFjdGljZS1pZHAiLCJzdWIiOiJtZXJjaGFudC1hLWFwaSIsIm1lcmNoYW50X2lkIjoibWVyY2hhbnQtYSIsInNjb3BlIjoidHJhbnNhY3Rpb25zOnJlYWQgdHJhbnNhY3Rpb25zOndyaXRlIn0.3qBjZAyqzoIZ6-dte2RFHT43SJbGNXbQu_c6I-LiQbM
+@merchantB = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwcmFjdGljZS1pZHAiLCJzdWIiOiJtZXJjaGFudC1iLWFwaSIsIm1lcmNoYW50X2lkIjoibWVyY2hhbnQtYiIsInNjb3BlIjoidHJhbnNhY3Rpb25zOnJlYWQgdHJhbnNhY3Rpb25zOndyaXRlIn0.xkMMr6x6Sewu58XpXgosmwDH6EQaZg26785-13WpqQw
+@merchantBReadOnly = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJwcmFjdGljZS1pZHAiLCJzdWIiOiJtZXJjaGFudC1iLWFwaSIsIm1lcmNoYW50X2lkIjoibWVyY2hhbnQtYiIsInNjb3BlIjoidHJhbnNhY3Rpb25zOnJlYWQifQ.vlOal5dFQaX7-8VCQjBxZCuo6EC13Rl27dDBJzjyUh4
+
+### Create a transaction
+POST {{host}}/api/v1/transactions/create
+Authorization: Bearer {{merchantA}}
+Content-Type: application/json
+
+{
+  "merchantId": "merchant-a",
+  "reference": "order-3001",
+  "amount": 25.50,
+  "currency": "EUR",
+  "cardNumber": "4111111111111111",
+  "cardHolder": "Test Holder One",
+  "cvv": "123"
+}
+
+### Get one transaction
+GET {{host}}/api/v1/transactions/1
+Authorization: Bearer {{merchantA}}
+
+### List a merchant's transactions
+GET {{host}}/api/v1/transactions?merchantId=merchant-a
+Authorization: Bearer {{merchantA}}
+
+### Search by reference
+GET {{host}}/api/v1/transactions/search?reference=order-10
+Authorization: Bearer {{merchantA}}
+
+### Capture
+POST {{host}}/api/v1/transactions/1/capture
+Authorization: Bearer {{merchantA}}
+
+### Refund
+POST {{host}}/api/v1/transactions/3/refund?amount=20.00&reason=customer%20request
+Authorization: Bearer {{merchantA}}
+
+### Void
+GET {{host}}/api/v1/transactions/5/void
+Authorization: Bearer {{merchantB}}
+
+# curl example:
+# curl -X POST "http://localhost:8081/api/v1/transactions/3/refund?amount=20.00" -H "Authorization: Bearer <token>"

@@ -1,0 +1,16 @@
+name: sqltraps
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: sqltraps-postgres
+    environment:
+      POSTGRES_DB: sqltraps
+      POSTGRES_USER: sqltraps
+      POSTGRES_PASSWORD: sqltraps
+    ports:
+      - "5447:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sqltraps -d sqltraps"]
+      interval: 2s
+      timeout: 2s
+      retries: 20

@@ -1,0 +1,6 @@
+# Launchers must keep their line endings on every OS, or they stop working after a checkout.
+mvnw    text eol=lf
+demo    text eol=lf
+inspect text eol=lf
+check   text eol=lf
+*.cmd   text eol=crlf
