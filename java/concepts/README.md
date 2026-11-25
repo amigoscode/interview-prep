@@ -19,6 +19,9 @@ under [`java/`](../).
 | 06 | Junior / mid | [Thread safety](junior-mid/06-thread-safety/) | 1,000 requests are answered, the counter says 915 |
 | 07 | Junior / mid | [Locking](junior-mid/07-locking/) | Two buyers both get the last item in stock |
 | 08 | Junior / mid | [Idempotency](junior-mid/08-idempotency/) | One payment is retried and the customer is charged twice |
+| 09 | Junior / mid | [Isolation levels](junior-mid/09-isolation-levels/) | A bank statement whose lines add up to 1000 and whose total says 1100 |
+| 10 | Junior / mid | [Constraints and races](junior-mid/10-constraints-and-races/) | Two signups with the same email both succeed |
+| 11 | Junior / mid | [Pagination](junior-mid/11-pagination/) | Page 5,000 reads 100,000 rows to return 20 |
 
 The numbers are the suggested order. Each project stands on its own, so you can start anywhere.
 

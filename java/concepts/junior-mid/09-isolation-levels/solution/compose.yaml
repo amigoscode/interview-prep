@@ -1,0 +1,16 @@
+name: isolation-levels
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: isolation-levels-postgres
+    environment:
+      POSTGRES_DB: bank
+      POSTGRES_USER: bank
+      POSTGRES_PASSWORD: bank
+    ports:
+      - "5448:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bank -d bank"]
+      interval: 2s
+      timeout: 2s
+      retries: 20

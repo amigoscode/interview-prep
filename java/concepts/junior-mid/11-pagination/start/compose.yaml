@@ -1,0 +1,18 @@
+# The project name is set here because the folder is called "solution" (or "start") in every
+# project of this repository: without it, "docker compose down" in another project would stop this one.
+name: pagination
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: pagination-postgres
+    environment:
+      POSTGRES_DB: pagination
+      POSTGRES_USER: pagination
+      POSTGRES_PASSWORD: pagination
+    ports:
+      - "5450:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pagination -d pagination"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
