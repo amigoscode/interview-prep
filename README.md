@@ -32,6 +32,7 @@ A collection of hands-on coding interview projects organized by language. Each p
 | Java | [Fix the Service](java/fix-the-service/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Karat Drills](java/karat-drills/) | Plain Java 21, JUnit 5 | Done |
 | Java | [Secret Storage](java/secret-storage/) | Spring Boot 4, Java 25, Docker | Done |
+| Java | [Payment Transaction Review](java/payment-transaction-review/) | Spring Boot 3.5, Java 25, Gradle, JPA, Flyway, Kafka, JWT | Done |
 
 > **Note on formats:** most projects hand the candidate a working codebase with intentional issues to
 > find and fix. **Flight Feasibility** is different — it is *build from scratch* against a real,
@@ -52,6 +53,11 @@ A collection of hands-on coding interview projects organized by language. Each p
 > at its brands Glovo, talabat and foodpanda). They use the same live-coding format, with solutions on
 > `solutions/<project>`. **Fix the Service** starts with 4 failing tests on purpose. See
 > [java/DELIVERY_HERO.md](java/DELIVERY_HERO.md) for every question mapped to its exercise.
+
+> **Payment Transaction Review** is a live code review in the style of payments companies' senior
+> backend rounds: a runnable transaction API with 36 planted defects (security, money, concurrency,
+> transactions, Kafka) to review out loud as a colleague's pull request, then one fix and one
+> extension. The run sheet, ranked answer key and scorecard are in its `INTERVIEW_TASKS.md`.
 
 > **Karat prep:** **Karat Drills** rebuilds 19 real Karat coding questions (Java + React skillset, 2026
 > question bank) as one package each: a small back-office system with one failing test to fix, then two
