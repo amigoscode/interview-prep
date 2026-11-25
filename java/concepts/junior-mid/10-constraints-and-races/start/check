@@ -1,0 +1,4 @@
+#!/bin/sh
+# Runs on macOS and Linux. On Windows use check.cmd (type: .\check).
+cd "$(dirname "$0")" || exit 1
+exec ./mvnw -q test-compile exec:java -Dexec.mainClass=com.amigoscode.constraints.Check -Dexec.classpathScope=test -Dexec.args="$*"
